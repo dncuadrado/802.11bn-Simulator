@@ -78,7 +78,7 @@ AP_matrix = [grid_value/4,grid_value/4;
 
 
 sim = '30metros-16STAs';
-load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
+load(horzcat('/home/dnunez/Papers/journal_CSR_scheduling/deployment datasets/',sim, '/STA_matrix_save.mat'));
 
  
 DCFdelay = [];
@@ -86,14 +86,17 @@ CSRNumPkdelay = [];
 CSROldPkdelay = []; 
 CSRWeighteddelay = [];
 
-traffic_load_idx = {'low' 'medium' 'high'};
+traffic_load_idx = {'high'};
 
 % %%% Creating a progress bar to track the current state of the simulation
 % f = waitbar(0,'Please wait...');
 
-for xxx = 1:3
+parpool('local',32)
+
+for xxx = 1:1
     traffic_load = traffic_load_idx{xxx};
-    updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
+    % updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
+    
     parfor i = 1:iterations
         % i=36;
         %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +144,7 @@ for xxx = 1:3
         %%% Traffic generation
         % STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, traffic_type, event_number, trafficGeneration_rate);
         arrivalfileName = horzcat('STAs_arrivals_matrix',int2str(i));
-        destinationName = horzcat('traffic datasets/', traffic_type,'/',traffic_load, ' load/' ,int2str(STA_number),'/',arrivalfileName);
+        destinationName = horzcat('/home/dnunez/Papers/journal_CSR_scheduling/traffic datasets/', traffic_type,'/',traffic_load, ' load/' ,int2str(STA_number),'/',arrivalfileName);
         % save(destinationName,"STAs_arrivals_matrix");
         % continue
         STAs_arrivals_matrix = struct2array(load(horzcat(destinationName,'.mat')));  % load the traffic dataset
@@ -281,7 +284,7 @@ for xxx = 1:3
         CSROldPkdelay = [CSROldPkdelay;simCSROldPk.delayvector];
         CSRWeighteddelay = [CSRWeighteddelay;simCSRWeighted.delayvector];
 
-        updateWaitbar();
+        % updateWaitbar();
 
         % %%% Updating progress bar
         % waitbar(i/iterations,f,'General bar progress...');
@@ -294,16 +297,16 @@ for xxx = 1:3
     % close(f);
 
     % %%% Saving variables
-    DCFfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
+    DCFfilename = horzcat('/home/dnunez/Papers/journal_CSR_scheduling/simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
     save(DCFfilename,"DCFdelay");
 
-    CSRNumPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
+    CSRNumPkfilename = horzcat('/home/dnunez/Papers/journal_CSR_scheduling/simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
     save(CSRNumPkfilename,"CSRNumPkdelay");
 
-    CSROldPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
+    CSROldPkfilename = horzcat('/home/dnunez/Papers/journal_CSR_scheduling/simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
     save(CSROldPkfilename,"CSROldPkdelay");
 
-    CSRWeightedfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
+    CSRWeightedfilename = horzcat('/home/dnunez/Papers/journal_CSR_scheduling/simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
     save(CSRWeightedfilename,"CSRWeighteddelay");
 
 end
