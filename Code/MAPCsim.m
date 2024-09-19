@@ -736,7 +736,7 @@ classdef MAPCsim < handle
 
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function PlotPrctileDelayPerSTA(self, ptile)
+        function PlotPrctileDelayPerSTA(self, ptile, color)
             % Method to plot the percentile "prctile" delay per STA
             percentile =  zeros(self.n_STAs,1);
 
@@ -745,11 +745,19 @@ classdef MAPCsim < handle
             end
 
             figure 
-            bar(percentile)
-            title(sprintf('%d-Percentile delay', ptile), 'interpreter','latex', 'FontSize', 14);
-            xlabel('STA', 'interpreter','latex', 'FontSize', 14)
-            ylabel('Delay [ms]', 'interpreter','latex', 'FontSize', 14)
-            set(gca, 'TickLabelInterpreter','latex');
+            b = bar(percentile);
+            b.LineWidth = 1.5;
+            b.FaceColor = color;
+            % b.CData = color;
+            title(sprintf('%d-Percentile delay', ptile), 'interpreter','latex', 'FontSize', 16);
+            xlabel('STA', 'interpreter','latex', 'FontSize', 16)
+            ylabel('Delay [ms]', 'interpreter','latex', 'FontSize', 16)
+
+            ax = gca;
+            ax.XAxis.LineWidth = 1.5;
+            ax.YAxis.LineWidth = 1.5;
+            
+            set(ax, 'TickLabelInterpreter','latex');
             grid on
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

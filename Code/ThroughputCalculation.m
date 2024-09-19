@@ -64,7 +64,7 @@ for i = 1:iterations
     %     30.0217217427852	31.4189811308726
     %     32.1057553887391	30.8757003092022];
 
-    STA_matrix= [14.2644   13.7394
+    STA_matrix= [   14.2644   13.7394
         11.0591   10.3437
         5.3413   35.4651
         10.2185   39.2305
@@ -79,12 +79,15 @@ for i = 1:iterations
     [RSSI_dB_vector_to_export, association, ~] = RSSI_database(tx_power_ss, Cca, AP_matrix, STA_matrix, scenario_type, walls);
 
     % %%% Deployment PLOT
-    % PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
+    PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %%% For validating simulated CSR against CSR bianchi's model uncomment this
-    [CGs_STAs]  = CG_creation_per_STA_brute_force(AP_number, STA_number, DCFoverheads, CSRoverheads, ...
+    % [CGs_STAs]  = CG_creation_per_STA_brute_force(AP_number, STA_number, DCFoverheads, CSRoverheads, ...
+    %     Pn_dBm, Nsc, Nss, RSSI_dB_vector_to_export, association, TXOP_duration);
+
+    [CGs_STAs, ~] = CG_creation(AP_number, STA_number, DCFoverheads, CSRoverheads, ...
         Pn_dBm, Nsc, Nss, RSSI_dB_vector_to_export, association, TXOP_duration);
     
     % STA_matrix_save(:,:,i) = STA_matrix;
