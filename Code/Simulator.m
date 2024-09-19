@@ -1,7 +1,7 @@
 clear all
 % clc
 tic
-%This is a test for .gitignore again
+%THis is a test for git
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%% IEEE 802.11bn Simulator  %%%%%%%%%%%%%%%%%%
@@ -294,18 +294,18 @@ end
 % %%% Close the progress bar
 % close(f);
 
-% %%% Saving variables
-DCFfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
-save(DCFfilename,"DCFdelay");
-
-CSRNumPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
-save(CSRNumPkfilename,"CSRNumPkdelay");
-
-CSROldPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
-save(CSROldPkfilename,"CSROldPkdelay");
-
-CSRWeightedfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
-save(CSRWeightedfilename,"CSRWeighteddelay");
+% % %%% Saving variables
+% DCFfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
+% save(DCFfilename,"DCFdelay");
+% 
+% CSRNumPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
+% save(CSRNumPkfilename,"CSRNumPkdelay");
+% 
+% CSROldPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
+% save(CSROldPkfilename,"CSROldPkdelay");
+% 
+% CSRWeightedfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
+% save(CSRWeightedfilename,"CSRWeighteddelay");
 
 
 
