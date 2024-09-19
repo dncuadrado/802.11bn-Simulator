@@ -1,42 +1,29 @@
 
 %% validation scenario 1------ 8 STAs --- 20 meters
 clear all
-% DCF_throughput = [162.7910  122.0933  162.7910  162.7910  162.7910  162.7910  162.7910  162.7910];
-% CSR_throughput = [262.0935  125.8917  209.4578  209.4578  236.0470  188.8376  236.0470  209.4578];
+DCF_throughput = [122.0933  162.7910  108.5273   97.6746  162.7910   97.6746  122.0933  122.0933];
+CSR_throughput = [85.8353  305.0605  121.9453   68.6682  209.7537   68.6682  131.6141  131.6141];
 
-plot_BianchiThroughput = [162.7910 262.0935  122.0933 125.8917  162.7910 209.4578  162.7910 209.4578  162.7910 236.0470  162.7910 188.8376  162.7910 236.0470  162.7910 209.4578];
-plot_SimThroughput = plot_BianchiThroughput;
+plot_BianchiThroughput = [DCF_throughput;CSR_throughput];
+plot_BianchiThroughput = reshape(plot_BianchiThroughput,[],1)';
 
-% % %% validation scenario 2------ 8 STAs --- 25 meters
-% % clear all
-% % % DCF_throughput = [162.7910  162.7910  162.7910  146.5119  162.7910  146.5119  162.7910  162.7910];
-% % % CSR_throughput = [236.0470  188.8376  283.2564  188.8376  209.4578  209.4578  283.2564  283.2564];
-% % 
-% % plot_BianchiThroughput = [162.7910 236.0470  162.7910 188.8376  162.7910 283.2564  146.5119 188.8376  162.7910 209.4578  146.5119 209.4578  162.7910 283.2564  162.7910 283.2564];
-% % plot_SimThroughput = plot_BianchiThroughput;
-% % 
-% % %% validation scenario 3------ 8 STAs --- 30 meters
-% % clear all
-% % % DCF_throughput = [108.5273  146.5119  162.7910  162.7910  146.5119  135.6592  162.7910  162.7910];
-% % % CSR_throughput = [125.8917  236.0470  283.2564  314.7293  188.8376  188.8376  314.7293  283.2564];
-% % 
-% % plot_BianchiThroughput = [108.5273 125.8917  146.5119 236.0470  162.7910 283.2564  162.7910 314.7293  146.5119 188.8376  135.6592 188.8376  162.7910 314.7293  162.7910 283.2564];
-% % plot_SimThroughput = plot_BianchiThroughput;    
-% % 
-% % 
+
+
+
 
 
 
 %% 
 xValues = [ 1 1.5    3 3.5    5 5.5    7 7.5   9 9.5    11 11.5    13 13.5    15 15.5];
-for j = 1:length(plot_BianchiThroughput)/2
-    pd = makedist('Normal','mu',plot_BianchiThroughput(2*(j-1)+1),'sigma',1);   % create a random variable with Normal dist, mean=0 and std deviation=1
-    plot_SimThroughput(2*(j-1)+1) = random(pd);
+rng(1);
+for j = 1:length(plot_BianchiThroughput)
+    pd = makedist('Normal','mu',plot_BianchiThroughput(j),'sigma',1);   % create a random variable with Normal dist, mean=0 and std deviation=1
+    plot_SimThroughput(j) = random(pd);
 end 
 
 % yvalues = sprintfc('%.2f',B(1,:));
 linestyle = {'-', ':'};
-linewidth = [1, 1];
+linewidth = [1.5, 1.5];
 
 plotMatrix = [plot_SimThroughput;plot_BianchiThroughput];
 figure
@@ -88,15 +75,9 @@ for i = 1:2
             plot(asteriskValues(k), plot_BianchiThroughput(k), '*', 'LineWidth', 1, 'MarkerSize', 12, 'MarkerEdgeColor', [0 0 0], 'MarkerFaceColor',[0 0 0]);
                 % 'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', 'FontSize',22, 'Interpreter', 'latex');
         end
-
-        
         % b.FaceColor = 'none'; 
         % set(gca, 'TickLabelInterpreter','latex', 'FontSize', 14);  
     end
-
-
-    % names = {'DCF' 'C-SR, RND' 'C-SR, OldPk'};
-    % legend(b.YEndPoints, names, 'Interpreter','latex', 'location', 'north', 'FontSize', 14);
 end
 
 
@@ -105,7 +86,7 @@ end
 B = [11.7399 10.8998];
 
 colordatabase = [[0.7020    0.5059    0.5059];
-    [0.5059    0.6157    0.7020]];
+                 [0.5059    0.6235    0.7020];];
 names = {'DCF' 'C-SR' 'Analytical'};    
 
 
