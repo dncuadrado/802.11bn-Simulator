@@ -14,11 +14,17 @@ simulation_system = 'DCF';     % For validating simulated against Bianchi's mode
                            % 3---> high traffic load to guarantee saturation, e.g., traffic_load = 5000E6; 
                            % 4---> NOTE: traffic_load high enough to achieve saturation (3000) and control the sim
                            %       duration by setting event number high enough (32000000) or manually with timestamp_to_stop (100)
-         
 
-traffic_type = 'Bursty';        % 'Poisson', 'Bursty'         
+validationFlag = 'no';                % for validating against Bianchi's model set 'yes'
+traffic_type = 'Poisson';        % 'Poisson', 'Bursty'         
 traffic_load = 'high';        % 'low', 'medium' , 'high'    
-validationFlag = 'no';                % for validating against Bianchi's model set 'yes'                                    
+
+%%% CSR related
+scheduler = 'NumPk';               % scheduling: - Number of packets: 'NumPk' 
+                                   %             - Oldest packet: 'OldPk'
+                                   %             - Random selection: 'Random'
+                                   %             - Weighted selection: 'Weighted'
+                                   %             - Hybrid selection: 'Hybrid' 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Input parameters
@@ -45,10 +51,6 @@ Nss = 2;                    % Number of spatial streams
 L = 12E3;                   % Number of bits per single frame
 
 
-%%% ST and CSR related
-priority = 1;               % priority for ST or CSR scheduling ------> 1: number of packets
-                                                              % ------> 2: oldest packets  
-                                                              % ------> 3: random
 
                                                                           %%% Compute the number of subcarriers, Nsc, as well as the total power used depending on the bandwidth and the number of spatial streams
 [tx_power_ss, Nsc] = TXpowerCalc(BW, Nss);      % tx power per spatial streams and number of subcarriers 
@@ -164,7 +166,7 @@ for i = 1:iterations
     %%% DCF
     rng(1);
     simDCF = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, trafficGeneration_rate, event_number, traffic_type, timestamp_to_stop, ...
-        priority, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);         % new "Traffic" object
+        scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);         % new "Traffic" object
     simDCF.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simDCF.simulation_system = 'DCF';
     simDCF.InitSTA();                                    % Initializing STAs
@@ -175,10 +177,10 @@ for i = 1:iterations
     %%% CSR NumPk
     rng(1);
     simCSRNumPk = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, trafficGeneration_rate, event_number, traffic_type, timestamp_to_stop, ...
-        priority, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
+        scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
     simCSRNumPk.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simCSRNumPk.simulation_system = 'CSR';
-    simCSRNumPk.priority = 1;
+    simCSRNumPk.scheduler = 'NumPk';
     simCSRNumPk.InitSTA();                                    % Initializing STAs
     simCSRNumPk.Start();
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -187,10 +189,10 @@ for i = 1:iterations
     %%% CSR OldPk
     rng(1);
     simCSROldPk = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, trafficGeneration_rate, event_number, traffic_type, timestamp_to_stop, ...
-        priority, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
+        scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
     simCSROldPk.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simCSROldPk.simulation_system = 'CSR';
-    simCSROldPk.priority = 2;
+    simCSROldPk.scheduler = 'OldPk';
     simCSROldPk.InitSTA();                                    % Initializing STAs
     simCSROldPk.Start();
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -199,10 +201,10 @@ for i = 1:iterations
     %%% CSR Weighted
     rng(1);
     simCSRWeighted = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, trafficGeneration_rate, event_number, traffic_type, timestamp_to_stop, ...
-        priority, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
+        scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
     simCSRWeighted.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simCSRWeighted.simulation_system = 'CSR';
-    simCSRWeighted.priority = 4;
+    simCSRWeighted.scheduler = 'Weighted';
     simCSRWeighted.InitSTA();                                    % Initializing STAs
     simCSRWeighted.Start();
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -214,7 +216,7 @@ for i = 1:iterations
     % % % % %         priority, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
     % % % % % simCSRHybrid.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     % % % % % simCSRHybrid.simulation_system = 'CSR';
-    % % % % % simCSRHybrid.priority = 5;
+    % % % % % simCSRHybrid.scheduler = 'Hybrid';
     % % % % % simCSRHybrid.InitSTA();                                    % Initializing STAs
     % % % % % simCSRHybrid.Start();
     % % % % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -238,37 +240,21 @@ for i = 1:iterations
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Plots
 
-    simDCF.PlotPrctileDelayPerSTA(99, '#B38181');
-    simCSRNumPk.PlotPrctileDelayPerSTA(99, '#819EB3');
-    simCSROldPk.PlotPrctileDelayPerSTA(99, '#5E4646');
-    simCSRWeighted.PlotPrctileDelayPerSTA(99, '#B3B281');
-    
-    % sim1.PlotCDFdelayTotal()
-    %
-    % sim1.PlotCDFdelayPerSTA();
-    %
-    % sim1.PlotisemptyWorstCaseDelayPerSTA();
-    %
-    % sim1.PlotPrctileDelayPerSTA(99)
-    %
-    % sim1.PlotTXOPwinNumber();
-    %
-    % sim1.PlotAPcollisionProb();
-    %
-    % sim1.PlotSTAselectionCounter();
+    myplot = MyPlots(simDCF, simCSRNumPk, simCSROldPk, simCSRWeighted);
+    myplot.PlotPercentileVerbose(i, 50, 99);
 
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    fprintf('------------------------------------------------------------------------ \n');
-    fprintf('Deployment %d  \n',i);
-    % fprintf('DCF 50th-tile delay = %f ms \n',prctile(simDCF.delayvector,50)*1000);
-    % fprintf('DCF 99th-tile delay = %f ms \n',prctile(simDCF.delayvector,99)*1000);
-    % fprintf('CSRNumPk 50th-tile delay = %f ms \n',prctile(simCSRNumPk.delayvector,50)*1000);
-    % fprintf('CSRNumPk 99th-tile delay = %f ms \n',prctile(simCSRNumPk.delayvector,99)*1000);
-    fprintf('CSROldPk 50th-tile delay = %f ms \n',prctile(simCSROldPk.delayvector,50)*1000);
-    fprintf('CSROldPk 99th-tile delay = %f ms \n',prctile(simCSROldPk.delayvector,99)*1000);
-    fprintf('CSRWeighted 50th-tile delay = %f ms \n',prctile(simCSRWeighted.delayvector,50)*1000);
-    fprintf('CSRWeighted 99th-tile delay = %f ms \n',prctile(simCSRWeighted.delayvector,99)*1000);
-    fprintf('------------------------------------------------------------------------ \n');
+    % myplot.PlotPrctileDelayPerSTA(99);
+    % myplot.PlotCDFdelayTotal();
+    % myplot.PlotCDFdelayPerSTA();
+    % myplot.PlotTXOPwinNumber();
+    % myplot.PlotAPcollisionProb();
+    % myplot.PlotSTAselectionCounter();
+
+    
+
+
+
+
 
     % B = [[prctile(simDCF.delayvector,99)*1000, prctile(simCSRNumPk.delayvector,99)*1000, prctile(simCSROldPk.delayvector,99)*1000, prctile(simCSRWeighted.delayvector,99)*1000];
     %             [prctile(simDCF.delayvector,50)*1000, prctile(simCSRNumPk.delayvector,50)*1000, prctile(simCSROldPk.delayvector,50)*1000, prctile(simCSRWeighted.delayvector,50)*1000]];
@@ -282,17 +268,12 @@ for i = 1:iterations
 
     % DCFdelay = [DCFdelay;simDCF.delayvector];
     % CSRNumPkdelay = [CSRNumPkdelay;simCSRNumPk.delayvector];
-    CSROldPkdelay = [CSROldPkdelay;simCSROldPk.delayvector];
-    CSRWeighteddelay = [CSRWeighteddelay;simCSRWeighted.delayvector];
+    % CSROldPkdelay = [CSROldPkdelay;simCSROldPk.delayvector];
+    % CSRWeighteddelay = [CSRWeighteddelay;simCSRWeighted.delayvector];
     
     % updateWaitbar();
 end
 
-% figure
-% % cdfplot(CSROldPkdelay*1000)
-% cdfplot(CSRWeighteddelay*1000)
-% %%% Close the progress bar
-% close(f);
 
 % % %%% Saving variables
 % DCFfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
