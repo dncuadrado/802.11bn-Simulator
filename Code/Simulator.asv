@@ -144,10 +144,10 @@ for i = 1:iterations
     %%% Traffic generation
     % STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, traffic_type, event_number, trafficGeneration_rate);
     arrivalfileName = horzcat('STAs_arrivals_matrix',int2str(i));
-    destinationName = strcat(path,'/traffic datasets/', traffic_type,'/',traffic_load, ' load/' ,int2str(STA_number),'/',arrivalfileName);
+    destinationName = horzcat(path,'/traffic datasets/', traffic_type,'/',traffic_load, ' load/' ,int2str(STA_number),'/',arrivalfileName);
     % save(destinationName,"STAs_arrivals_matrix");
     % continue
-    STAs_arrivals_matrix = struct2array(load(strcat(destinationName,'.mat')));  % load the traffic dataset
+    STAs_arrivals_matrix = struct2array(load(horzcat(destinationName,'.mat')));  % load the traffic dataset
 
     %%% Timestamp at which the simulation stops
     % timestamp_to_stop = max(STAs_arrivals_matrix, [], 'all');
@@ -280,16 +280,16 @@ end
 
 
 % % %%% Saving variables
-% DCFfilename = strcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
+% DCFfilename = str(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
 % save(DCFfilename,"DCFdelay");
 % 
-% CSRNumPkfilename = strcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
+% CSRNumPkfilename = horzcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
 % save(CSRNumPkfilename,"CSRNumPkdelay");
 % 
-% CSROldPkfilename = strcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
+% CSROldPkfilename = horzcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
 % save(CSROldPkfilename,"CSROldPkdelay");
 % 
-% CSRWeightedfilename = strcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
+% CSRWeightedfilename = horzcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
 % save(CSRWeightedfilename,"CSRWeighteddelay");
 
 
