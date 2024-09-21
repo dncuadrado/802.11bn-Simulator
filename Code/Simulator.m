@@ -52,18 +52,15 @@ L = 12E3;                   % Number of bits per single frame
 
 
 
-                                                                          %%% Compute the number of subcarriers, Nsc, as well as the total power used depending on the bandwidth and the number of spatial streams
+%%% Compute the number of subcarriers, Nsc, as well as the total power used depending on the bandwidth and the number of spatial streams
 [tx_power_ss, Nsc] = TXpowerCalc(BW, Nss);      % tx power per spatial streams and number of subcarriers 
 
 %%% Computing the needed overheads based on the simulation system, i.e., for DCF or CSR
 [preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads] = OverheadsCalc();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
+rng(1);            % For reproducibility   
 
-% num_comb_ok = zeros(1,1000);
-% for i = 1:1000
-rng(1);            % For reproducibility   50grid --->    rng() 
-                                          %                 rng(129)----> good
 iterations = 100;
 
 % STA_matrix_save = zeros(STA_number,2,iterations);
@@ -78,13 +75,9 @@ AP_matrix = [grid_value/4,grid_value/4;
     3*grid_value/4,grid_value/4;
     3*grid_value/4,3*grid_value/4];
 
-% Opening and taking the path from the pathfile.txt file
-openfile = fopen('pathfile.txt');
-path = string(textscan(openfile,'%s','Delimiter','|'));
-fclose(openfile);
 
 sim = '20metros-8STAs';
-load(strcat(path,'/deployment datasets/',sim, '/STA_matrix_save.mat'));
+load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 
  
 DCFdelay = [];
@@ -92,10 +85,7 @@ CSRNumPkdelay = [];
 CSROldPkdelay = []; 
 CSRWeighteddelay = [];
 
-% %%% Creating a progress bar to track the current state of the simulation
-% f = waitbar(0,'Please wait...');
-
-
+% parpool('local', 32);
 % updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
 for i = 1:iterations
     i=36;
@@ -144,10 +134,10 @@ for i = 1:iterations
     %%% Traffic generation
     % STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, traffic_type, event_number, trafficGeneration_rate);
     arrivalfileName = horzcat('STAs_arrivals_matrix',int2str(i));
-    destinationName = strcat(path,'/traffic datasets/', traffic_type,'/',traffic_load, ' load/' ,int2str(STA_number),'/',arrivalfileName);
+    destinationName = horzcat('traffic datasets/', traffic_type,'/',traffic_load, ' load/' ,int2str(STA_number),'/',arrivalfileName);
     % save(destinationName,"STAs_arrivals_matrix");
     % continue
-    STAs_arrivals_matrix = struct2array(load(strcat(destinationName,'.mat')));  % load the traffic dataset
+    STAs_arrivals_matrix = struct2array(load(horzcat(destinationName,'.mat')));  % load the traffic dataset
 
     %%% Timestamp at which the simulation stops
     % timestamp_to_stop = max(STAs_arrivals_matrix, [], 'all');
@@ -280,16 +270,16 @@ end
 
 
 % % %%% Saving variables
-% DCFfilename = strcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
+% DCFfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
 % save(DCFfilename,"DCFdelay");
-% 
-% CSRNumPkfilename = strcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
+
+% CSRNumPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
 % save(CSRNumPkfilename,"CSRNumPkdelay");
-% 
-% CSROldPkfilename = strcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
+
+% CSROldPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
 % save(CSROldPkfilename,"CSROldPkdelay");
-% 
-% CSRWeightedfilename = strcat(path,'simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
+
+% CSRWeightedfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
 % save(CSRWeightedfilename,"CSRWeighteddelay");
 
 
