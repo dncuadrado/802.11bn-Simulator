@@ -55,7 +55,7 @@ classdef MyPlots
         function CustomizeScatterPlot(self, actors, parameter, titletag, ylabeltag)
             % Plotting using scatter plot for each active mechanism
              
-            figure;
+            figure('pos', [400,400,700,400]);
             hold on;
 
             % Scatter plot each mechanism without skipping based on data checks

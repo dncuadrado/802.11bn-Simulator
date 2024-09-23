@@ -235,9 +235,9 @@ for i = 1:iterations
     %%% Plots
 
     myplot = MyPlots(simDCF, simCSRNumPk, simCSROldPk, simCSRWeighted);
-    myplot.PlotPercentileVerbose(i, 50, 99);
+    % myplot.PlotPercentileVerbose(i, 50, 99);
 
-    % myplot.PlotPrctileDelayPerSTA(99);
+    myplot.PlotPrctileDelayPerSTA(99);
     % myplot.PlotCDFdelayTotal();
     % myplot.PlotCDFdelayPerSTA();
     % myplot.PlotTXOPwinNumber();
