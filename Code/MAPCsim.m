@@ -16,6 +16,7 @@ classdef MAPCsim < handle
         RSSI_dB_vector_to_export
 
         %%% Traffic-related
+        event_number = 150000;                   % number of events to explore
         APs_packet_indicator                    % Indicator of AP availability of packets to transmit (used mainly in the backoff process)
         firstPosPosition                        % controls the position  of the first available packet to transmit to each STA 
         lastPosTimestamp                        % controls the timestamp of the last available packet to transmit to each STA (sensitive to sim timeline) 
@@ -23,6 +24,7 @@ classdef MAPCsim < handle
         rrobin_DCF_group_selector               % indicates the STA to transmit
         rrobin_CSR_group_selector               % indicates the group to transmit
         tempDelay                               % track the temporal delay 
+
 
         %%% Backoff-related
         backoffValues                           % vector which stores the backoff values
@@ -55,8 +57,6 @@ classdef MAPCsim < handle
         delay_per_STA                           % stores the delay per STA
         delayvector                             % vector that contains the delay of all STAs
         traffic_type                            % Poisson, Bursty
-        trafficGeneration_rate                  % in packet/s
-        event_number                            % number of events to explore
         timestamp_to_stop                       % simulation duration [in seconds]
 
 
@@ -78,7 +78,7 @@ classdef MAPCsim < handle
     
     methods
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function self = MAPCsim(n_APs, n_STAs, association, RSSI_dB_vector_to_export, generation_rate, event_number, traffic_type, timestamp_to_stop, ...
+        function self = MAPCsim(n_APs, n_STAs, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
                 scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads) % initialize object (constructor)
             
             %%% Initializing properties
@@ -97,8 +97,6 @@ classdef MAPCsim < handle
             self.RSSI_dB_vector_to_export = RSSI_dB_vector_to_export;
             
             self.traffic_type = traffic_type;
-            self.trafficGeneration_rate = generation_rate;
-            self.event_number = event_number;
             self.timestamp_to_stop = timestamp_to_stop;
 
             self.STA_queue_timeline = zeros(self.n_STAs,self.event_number); 

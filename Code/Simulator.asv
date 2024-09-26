@@ -1,4 +1,5 @@
 clear all
+% clc
 tic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -20,8 +21,8 @@ validationFlag = 'no';                % for validating against Bianchi's model s
 
 
 
-traffic_type = 'Bursty';        % 'Poisson', 'Bursty'         
-traffic_load = 'medium';        % 'low', 'medium' , 'high'    
+traffic_type = 'Poisson';        % 'Poisson', 'Bursty'         
+traffic_load = 'low';        % 'low', 'medium' , 'high'    
 
 %%% CSR related
 scheduler = 'NumPk';               % scheduling: - Number of packets: 'NumPk' 
@@ -94,7 +95,7 @@ CSRNumPkdelay = [];
 CSROldPkdelay = [];
 CSRWeighteddelay = [];
 
-parfor i = 86
+for i = 86
     % i=86;
     %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %% Devices deployment (scenarios are randomly per default if "rng" above is commented )
@@ -115,19 +116,19 @@ parfor i = 86
     % %%% Deployment PLOT
     % PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
 
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % %%% Traffic-related %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % switch traffic_load
-    %     case 'low'
-    %         C = 0.3;
-    %     case 'medium'
-    %         C = 0.6;
-    %     case 'high'
-    %         C = 0.9;
-    % end
-    % 
-    % trafficGeneration_rate = C*min(per_STA_DCF_throughput_bianchi)*1E6/L;
-    % event_number = 150000;                               % number of packets tx along the simulation
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Traffic-related %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    switch traffic_load
+        case 'low'
+            C = 0.3;
+        case 'medium'
+            C = 0.6;
+        case 'high'
+            C = 0.9;
+    end
+    
+    trafficGeneration_rate = C*min(per_STA_DCF_throughput_bianchi)*1E6/L;
+    event_number = 150000;                               % number of packets tx along the simulation
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Full-buffer
@@ -162,7 +163,7 @@ parfor i = 86
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% DCF
     rng(1);
-    simDCF = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    simDCF = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, trafficGeneration_rate, event_number, traffic_type, timestamp_to_stop, ...
         scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);         % new "Traffic" object
     simDCF.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simDCF.simulation_system = 'DCF';
@@ -173,7 +174,7 @@ parfor i = 86
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% CSR NumPk
     rng(1);
-    simCSRNumPk = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    simCSRNumPk = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, trafficGeneration_rate, event_number, traffic_type, timestamp_to_stop, ...
         scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
     simCSRNumPk.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simCSRNumPk.simulation_system = 'CSR';
@@ -185,7 +186,7 @@ parfor i = 86
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% CSR OldPk
     rng(1);
-    simCSROldPk = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    simCSROldPk = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, trafficGeneration_rate, event_number, traffic_type, timestamp_to_stop, ...
         scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
     simCSROldPk.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simCSROldPk.simulation_system = 'CSR';
@@ -197,7 +198,7 @@ parfor i = 86
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% CSR Weighted
     rng(1);
-    simCSRWeighted = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    simCSRWeighted = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, event_number, traffic_type, timestamp_to_stop, ...
         scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
     simCSRWeighted.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simCSRWeighted.simulation_system = 'CSR';
@@ -209,7 +210,7 @@ parfor i = 86
     % % % % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % % % % % %%% CSR Hybrid
     % % % % % rng(1);
-    % % % % % simCSRHybrid = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    % % % % % simCSRHybrid = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, trafficGeneration_rate, event_number, traffic_type, timestamp_to_stop, ...
     % % % % %         priority, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
     % % % % % simCSRHybrid.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     % % % % % simCSRHybrid.simulation_system = 'CSR';

@@ -1,5 +1,5 @@
 %%
-% clear all
+clear all
 
 linestyle = {'-', ':'};
 linewidth = [1.5, 1.5];
@@ -28,6 +28,7 @@ for j = 1:length(sim_sim)
             allCSROldPkdelayVectors = cell(100, 1);
             allCSRWeighteddelayVectors = cell(100, 1);
 
+
             % Load each vector and store it in the cell array
             for jjjj = 86
                
@@ -37,26 +38,25 @@ for j = 1:length(sim_sim)
                 CSROldPkfilename = horzcat(Resultsfilepath,'/CSROldPkdelay.mat');
                 CSRWeightedfilename = horzcat(Resultsfilepath,'/CSRWeighteddelay.mat');
 
-                DCFTEst = load(DCFfilename).DCFdelay;
                 allDCFdelayVectors{jjjj} = load(DCFfilename).DCFdelay;
                 allCSRNumPkdelayVectors{jjjj} = load(CSRNumPkfilename).CSRNumPkdelay;
                 allCSROldPkdelayVectors{jjjj} = load(CSROldPkfilename).CSROldPkdelay;
                 allCSRWeighteddelayVectors{jjjj} = load(CSRWeightedfilename).CSRWeighteddelay;
 
             end
-            DCFdelay1 = vertcat(allDCFdelayVectors{:});
-            CSRNumPkdelay1 = vertcat(allCSRNumPkdelayVectors{:});
-            CSROldPkdelay1 = vertcat(allCSROldPkdelayVectors{:});
-            CSRWeighteddelay1 = vertcat(allCSRWeighteddelayVectors{:});
+            DCFdelay = vertcat(allDCFdelayVectors{:});
+            CSRNumPkdelay = vertcat(allCSRNumPkdelayVectors{:});
+            CSROldPkdelay = vertcat(allCSROldPkdelayVectors{:});
+            CSRWeighteddelay = vertcat(allCSRWeighteddelayVectors{:});
 
 
-            B = [[prctile(DCFdelay1,99)*1000, prctile(CSRNumPkdelay1,99)*1000, prctile(CSROldPkdelay1,99)*1000, prctile(CSRWeighteddelay1,99)*1000];
-                [prctile(DCFdelay1,50)*1000, prctile(CSRNumPkdelay1,50)*1000, prctile(CSROldPkdelay1,50)*1000, prctile(CSRWeighteddelay1,50)*1000]];
+            B = [[prctile(DCFdelay,99)*1000, prctile(CSRNumPkdelay,99)*1000, prctile(CSROldPkdelay,99)*1000, prctile(CSRWeighteddelay,99)*1000];
+                [prctile(DCFdelay,50)*1000, prctile(CSRNumPkdelay,50)*1000, prctile(CSROldPkdelay,50)*1000, prctile(CSRWeighteddelay,50)*1000]];
             delay_values = [delay_values B];
 
         end
         yvalues = sprintfc('%.2f',delay_values(1,:));
-        figure('pos', [400,400,700,400])
+        figure('pos', [400,400,700,500])
         for i = 1:2
             b = bar(A, delay_values(i,:));
             b.LineStyle = linestyle(i);
@@ -98,11 +98,8 @@ for j = 1:length(sim_sim)
                 set(gca, 'TickLabelInterpreter','latex', 'FontSize', 14);
                 grid on
                 hold on
-                text(A,delay_values(1,:),yvalues,'vert','bottom','horiz','center', 'interpreter','latex', 'FontSize', 10);
+                text(A,delay_values(1,:),yvalues,'vert','bottom','horiz','center', 'interpreter','latex', 'FontSize', 11);
                 box off
-
-                % names = {'DCF' 'C-SR, NumPk' 'C-SR, OldPk', 'C-SR, Weighted'};
-                % legend(b.YEndPoints, names, 'Interpreter','latex', 'location', 'northwest', 'FontSize', 14);
             else
                 b.FaceColor = 'none';
             end
@@ -120,9 +117,9 @@ end
 
 %%
 %%%%%% legend
-% B = [11.7399 10.8998 5.6802];
-% 
 
+
+clear all
 
 delay_values = [11.7399 10.8998 5.6802 5.1610];
 

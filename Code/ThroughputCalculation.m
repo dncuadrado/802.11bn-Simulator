@@ -64,14 +64,23 @@ for i = 1:iterations
     %     30.0217217427852	31.4189811308726
     %     32.1057553887391	30.8757003092022];
 
-    STA_matrix= [   14.2644   13.7394
-        11.0591   10.3437
-        5.3413   35.4651
-        10.2185   39.2305
-        30.1845   11.0308
-        22.2905   14.1042
-        33.9521   35.5857
-        25.7944   34.5644]; % new deployment #36
+    % STA_matrix= [   14.2644   13.7394
+    %     11.0591   10.3437
+    %     5.3413   35.4651
+    %     10.2185   39.2305
+    %     30.1845   11.0308
+    %     22.2905   14.1042
+    %     33.9521   35.5857
+    %     25.7944   34.5644]; % new deployment #36
+
+    STA_matrix =  [10.1229   19.3822
+        7.5522   12.4894
+        3.5117   25.5194
+        18.4964   29.9307
+        20.3208   11.2093
+        32.2544    9.8951
+        29.0008   31.3271
+        38.7194   34.3547]; % new new deployment #86
 
 
 
@@ -79,7 +88,7 @@ for i = 1:iterations
     [RSSI_dB_vector_to_export, association, ~] = RSSI_database(tx_power_ss, Cca, AP_matrix, STA_matrix, scenario_type, walls);
 
     % %%% Deployment PLOT
-    PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
+    % PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -136,31 +145,3 @@ grid on
 
 
 toc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
