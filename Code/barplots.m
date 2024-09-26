@@ -1,102 +1,121 @@
-
-
-%%%%%% Example scenario
 %%
-% %%% Poisson
-% delay_values = [[62.1728    7.0324    5.2994    5.3819     69.5307   10.6364    8.6090    8.3071        262.2875   24.2355   19.2020   16.2128]
-%                 [2.6263    2.0959    2.4483    2.5101      4.0844    3.6312    4.0791    3.8271         8.1045    8.5317    9.4104    7.4241]];
+% clear all
 
-%%% Bursty
-delay_values = [[6.5903    6.4550    5.1037    5.1857       15.5849   17.1410   14.4143   14.1023       60.7909   47.4644   41.8858   34.1742]
-                [0.8956    1.0205    1.2986    1.3569       2.4716    2.3364    3.5631    3.8627        6.7790    6.4405   10.7416   10.3309]];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%% Random scenarios
-%%% 20metros-8STAs
-
-% %%% Poisson
-% delay_values = [[64.4461    7.5145    6.2730    6.2977         90.8318   10.1947    9.2866    9.3202         147.3939   19.1759   18.0429   17.8204]
-%                 [2.5555    2.3505    2.7297    2.7570          3.8934    3.7017    4.0223    3.9881          7.0925    6.5362    6.9297    6.7104]];
-
-% %%% Bursty
-% delay_values = [[6.2135    7.2359    5.6755    5.6906            15.5574   17.2078   14.8520   14.6994         47.3582   45.4398   40.3347   38.5961]
-%                 [0.8897    1.0317    1.3662    1.4005            2.2000    2.1123    3.4291    3.5181          5.7340    4.9701    8.8037    8.9283]];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% 20metros-16STAs
-% %%% Poisson
-% delay_values = [[78.5670   14.7497   11.3318   11.3621           90.7253   18.6423   16.1804   15.8430         111.6508   31.5370   29.0303   26.6043]
-%                 [4.6097    4.1116    4.9891    5.0685            5.7940    5.4900    6.2529    6.2130          7.7676    7.5602    8.2411    8.0186]];
-
-% %%% Bursty
-% delay_values = [[11.1355   15.3227    8.0448    8.1443           27.3082   28.7563   18.6263   18.5161         60.3704   50.9794   42.2046   39.7779]
-%                 [1.5014    1.2451    2.4472    2.6301            3.7469    2.2159    6.0514    6.4461          6.4203    3.5833    9.1361    9.5629]];
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% 30metros-16STAs
-% %%% Poisson
-% delay_values = [[78.5670   10.8200    7.9074    7.9766           90.7253   14.0279   10.7776   10.4819         111.6508   22.6456   18.2225   15.4686]
-%                 [4.6097    2.4026    2.9526    3.4680            5.7940    3.2704    3.7707    4.1050          7.7676    4.5228    4.9764    5.0297]];
-
-% %%% Bursty
-% delay_values = [[11.1355    8.1575    5.6646    5.8407           27.3082   17.8413   14.5649   13.9778         71.5360   42.3590   36.4425   33.1152]
-%                 [1.5014    1.0490    1.4515    1.7947            3.7469    1.9340    3.3483    4.2896          9.3201    4.2608    8.0801    9.8643]];
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-yvalues = sprintfc('%.2f',delay_values(1,:));
 linestyle = {'-', ':'};
 linewidth = [1.5, 1.5];
-
-figure('pos', [400,400,700,400])
-
 A = [1 2 3 4  6 7 8 9  11 12 13 14];
-for i = 1:2
-    b = bar(A, delay_values(i,:));
-    b.LineStyle = linestyle(i);
-    b.LineWidth = linewidth(i);
-     
-    if i == 1 
-        b.FaceColor = 'flat';
-        b.CData(1,:) = [0.7020    0.5059    0.5059];        % #B38181 
-        b.CData(2,:) = [0.5059    0.6235    0.7020];        % #819EB3
-        b.CData(3,:) = [0.3686    0.2745    0.2745];        % #5E4646
-        b.CData(4,:) = [0.7020    0.6980    0.5059];        % #B3B281
-        b.CData(5,:) = [0.7020    0.5059    0.5059];
-        b.CData(6,:) = [0.5059    0.6235    0.7020];
-        b.CData(7,:) = [0.3686    0.2745    0.2745];
-        b.CData(8,:) = [0.7020    0.6980    0.5059];
-        b.CData(9,:) = [0.7020    0.5059    0.5059];
-        b.CData(10,:) = [0.5059    0.6235    0.7020];
-        b.CData(11,:) = [0.3686    0.2745    0.2745];
-        b.CData(12,:) = [0.7020    0.6980    0.5059];
 
-        title('', 'interpreter','latex', 'FontSize', 14);
-        xticks([1 2 2.5 3 4 5 6 7 7.5 8 9 10 11 12 12.5 13 14]);
-        xticklabels({[] [] 'low' [] [] [] [] [] 'medium' [] [] [] [] [] 'high' [] []});
-        xtickangle(0);
-        xlabel('Traffic load', 'interpreter','latex', 'FontSize', 16)
+% sim_sim = {'20metros-8STAs' '20metros-16STAs' '30metros-16STAs'};
+sim_sim = {'20metros-8STAs'};
+traffic_type_sim = {'Poisson' 'Bursty'};
+traffic_load_sim = {'low' 'medium' 'high'};
 
-        ylim([0 80]);
-        yticks(0:20:80);
-        ylabel('$99^{}\%$-tile of Packet Delay [ms]', 'interpreter','latex', 'FontSize', 16)
-        ax = gca;
-        ax.XAxis.LineWidth = 1.5;
-        ax.YAxis.LineWidth = 1.5;
-        set(gca, 'TickLabelInterpreter','latex', 'FontSize', 14);
-        grid on
-        hold on
-        text(A,delay_values(1,:),yvalues,'vert','bottom','horiz','center', 'interpreter','latex', 'FontSize', 10);
-        box off
 
-        % names = {'DCF' 'C-SR, NumPk' 'C-SR, OldPk', 'C-SR, Weighted'};
-        % legend(b.YEndPoints, names, 'Interpreter','latex', 'location', 'northwest', 'FontSize', 14);
-    else
-        b.FaceColor = 'none';   
+
+for j = 1:length(sim_sim)
+    sim = sim_sim{j}; 
+
+    for jj = 1:length(traffic_type_sim)
+        traffic_type = traffic_type_sim{jj};
+
+        delay_values = [];
+        for jjj = 1:length(traffic_load_sim)
+            traffic_load = traffic_load_sim{jjj};
+
+            % Initialize an empty cell array to store the vectors
+            allDCFdelayVectors = cell(100, 1);
+            allCSRNumPkdelayVectors = cell(100, 1);
+            allCSROldPkdelayVectors = cell(100, 1);
+            allCSRWeighteddelayVectors = cell(100, 1);
+
+            % Load each vector and store it in the cell array
+            for jjjj = 86
+               
+                Resultsfilepath = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load/Deployment', int2str(jjjj));
+                DCFfilename = horzcat(Resultsfilepath,'/DCFdelay.mat');
+                CSRNumPkfilename = horzcat(Resultsfilepath,'/CSRNumPkdelay.mat');
+                CSROldPkfilename = horzcat(Resultsfilepath,'/CSROldPkdelay.mat');
+                CSRWeightedfilename = horzcat(Resultsfilepath,'/CSRWeighteddelay.mat');
+
+                DCFTEst = load(DCFfilename).DCFdelay;
+                allDCFdelayVectors{jjjj} = load(DCFfilename).DCFdelay;
+                allCSRNumPkdelayVectors{jjjj} = load(CSRNumPkfilename).CSRNumPkdelay;
+                allCSROldPkdelayVectors{jjjj} = load(CSROldPkfilename).CSROldPkdelay;
+                allCSRWeighteddelayVectors{jjjj} = load(CSRWeightedfilename).CSRWeighteddelay;
+
+            end
+            DCFdelay1 = vertcat(allDCFdelayVectors{:});
+            CSRNumPkdelay1 = vertcat(allCSRNumPkdelayVectors{:});
+            CSROldPkdelay1 = vertcat(allCSROldPkdelayVectors{:});
+            CSRWeighteddelay1 = vertcat(allCSRWeighteddelayVectors{:});
+
+
+            B = [[prctile(DCFdelay1,99)*1000, prctile(CSRNumPkdelay1,99)*1000, prctile(CSROldPkdelay1,99)*1000, prctile(CSRWeighteddelay1,99)*1000];
+                [prctile(DCFdelay1,50)*1000, prctile(CSRNumPkdelay1,50)*1000, prctile(CSROldPkdelay1,50)*1000, prctile(CSRWeighteddelay1,50)*1000]];
+            delay_values = [delay_values B];
+
+        end
+        yvalues = sprintfc('%.2f',delay_values(1,:));
+        figure('pos', [400,400,700,400])
+        for i = 1:2
+            b = bar(A, delay_values(i,:));
+            b.LineStyle = linestyle(i);
+            b.LineWidth = linewidth(i);
+
+            if i == 1
+                b.FaceColor = 'flat';
+                b.CData(1,:) = [0.7020    0.5059    0.5059];        % #B38181
+                b.CData(2,:) = [0.5059    0.6235    0.7020];        % #819EB3
+                b.CData(3,:) = [0.3686    0.2745    0.2745];        % #5E4646
+                b.CData(4,:) = [0.7020    0.6980    0.5059];        % #B3B281
+                b.CData(5,:) = [0.7020    0.5059    0.5059];
+                b.CData(6,:) = [0.5059    0.6235    0.7020];
+                b.CData(7,:) = [0.3686    0.2745    0.2745];
+                b.CData(8,:) = [0.7020    0.6980    0.5059];
+                b.CData(9,:) = [0.7020    0.5059    0.5059];
+                b.CData(10,:) = [0.5059    0.6235    0.7020];
+                b.CData(11,:) = [0.3686    0.2745    0.2745];
+                b.CData(12,:) = [0.7020    0.6980    0.5059];
+
+                title('', 'interpreter','latex', 'FontSize', 14);
+                xticks([1 2 2.5 3 4 5 6 7 7.5 8 9 10 11 12 12.5 13 14]);
+                xticklabels({[] [] 'low' [] [] [] [] [] 'medium' [] [] [] [] [] 'high' [] []});
+                xtickangle(0);
+                xlabel('Traffic load', 'interpreter','latex', 'FontSize', 16)
+                switch traffic_type
+                    case 'Poisson'
+                        ylim([0 160]);
+                        yticks(0:20:160);
+                    case 'Bursty'
+                        ylim([0 80]);
+                        yticks(0:20:80);
+                end
+
+                ylabel('$99^{}\%$-tile of Packet Delay [ms]', 'interpreter','latex', 'FontSize', 16)
+                ax = gca;
+                ax.XAxis.LineWidth = 1.5;
+                ax.YAxis.LineWidth = 1.5;
+                set(gca, 'TickLabelInterpreter','latex', 'FontSize', 14);
+                grid on
+                hold on
+                text(A,delay_values(1,:),yvalues,'vert','bottom','horiz','center', 'interpreter','latex', 'FontSize', 10);
+                box off
+
+                % names = {'DCF' 'C-SR, NumPk' 'C-SR, OldPk', 'C-SR, Weighted'};
+                % legend(b.YEndPoints, names, 'Interpreter','latex', 'location', 'northwest', 'FontSize', 14);
+            else
+                b.FaceColor = 'none';
+            end
+        end
     end
 
-
-
 end
+
+
+
+
+
+
 
 
 %%

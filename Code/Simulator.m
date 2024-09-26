@@ -16,15 +16,20 @@ simulation_system = 'DCF';     % For validating simulated against Bianchi's mode
                            %       duration by setting event number high enough (32000000) or manually with timestamp_to_stop (100)
 
 validationFlag = 'no';                % for validating against Bianchi's model set 'yes'
+
+
+
+
+
 traffic_type = 'Poisson';        % 'Poisson', 'Bursty'         
-traffic_load = 'high';        % 'low', 'medium' , 'high'    
+traffic_load = 'low';        % 'low', 'medium' , 'high'    
 
 %%% CSR related
 scheduler = 'NumPk';               % scheduling: - Number of packets: 'NumPk' 
-                                   %             - Oldest packet: 'OldPk'
-                                   %             - Random selection: 'Random'
-                                   %             - Weighted selection: 'Weighted'
-                                   %             - Hybrid selection: 'Hybrid' 
+                                %             - Oldest packet: 'OldPk'
+                                %             - Random selection: 'Random'
+                                %             - Weighted selection: 'Weighted'
+                                %             - Hybrid selection: 'Hybrid' 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Input parameters
@@ -34,7 +39,7 @@ AP_number = 4;          % Number of APs
 STA_number = 8;         % Number of STAs
 grid_value = 40;        % Length of the scenario: grid_value x grid_value
 scenario_type = 'grid';           % scenario_type: 'grid' ---> APs are placed in the centre of each subarea and STAs around them
-                                  %                'random' ---> both APs and STAs randomly deployed all over the entire area 
+                                %                'random' ---> both APs and STAs randomly deployed all over the entire area 
 
 walls = [0 grid_value grid_value/2 grid_value/2;            % Scenario design: each row contains the coordinates 
         grid_value/2 grid_value/2 0 grid_value];            % of each wall segment: [x1 x2 y1 y2]
@@ -77,18 +82,21 @@ AP_matrix = [grid_value/4,grid_value/4;
 
 
 sim = '20metros-8STAs';
+
+%%% To validate my specific simulations
+mySimValidation(AP_number, STA_number, grid_value, sim);
+
+%%% Loading the deployment dataset
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 
- 
+  
 DCFdelay = [];
 CSRNumPkdelay = [];
-CSROldPkdelay = []; 
+CSROldPkdelay = [];
 CSRWeighteddelay = [];
 
-% parpool('local', 32);
-% updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
 for i = 1:iterations
-    i=36;
+    i=86;
     %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %% Devices deployment (scenarios are randomly per default if "rng" above is commented )
     % [AP_matrix, STA_matrix] = AP_STA_coordinates(AP_number, STA_number, scenario_type, grid_value);
@@ -133,11 +141,15 @@ for i = 1:iterations
 
     %%% Traffic generation
     % STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, traffic_type, event_number, trafficGeneration_rate);
-    arrivalfileName = horzcat('STAs_arrivals_matrix',int2str(i));
-    destinationName = horzcat('traffic datasets/', traffic_type,'/',traffic_load, ' load/' ,int2str(STA_number),'/',arrivalfileName);
-    % save(destinationName,"STAs_arrivals_matrix");
+    TrafficfileName = horzcat('STAs_arrivals_matrix',int2str(i), '.mat');
+    TrafficfilePath = horzcat('traffic datasets/',sim, '/', traffic_type, '/', traffic_load, ' load/');
+    % if ~exist(TrafficfilePath, 'dir')
+    %     mkdir(TrafficfilePath);
+    % end
+    % save(horzcat(TrafficfilePath, TrafficfileName),"STAs_arrivals_matrix");
     % continue
-    STAs_arrivals_matrix = struct2array(load(horzcat(destinationName,'.mat')));  % load the traffic dataset
+
+    STAs_arrivals_matrix = struct2array(load(horzcat(TrafficfilePath, TrafficfileName)));  % load the traffic dataset
 
     %%% Timestamp at which the simulation stops
     % timestamp_to_stop = max(STAs_arrivals_matrix, [], 'all');
@@ -148,12 +160,6 @@ for i = 1:iterations
         error('The source of traffic generation finishes before the end of the simulation. Consider to increase the value of event_number or reduce timestamp_to_stop value');
     end
 
-
-    % num_comb_ok(i) = sum(comb_ok);
-    % disp(sum(comb_ok))
-    % end
-
-    % return
     % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -235,7 +241,7 @@ for i = 1:iterations
     %%% Plots
 
     myplot = MyPlots(simDCF, simCSRNumPk, simCSROldPk, simCSRWeighted);
-    % myplot.PlotPercentileVerbose(i, 50, 99);
+    myplot.PlotPercentileVerbose(i, 50, 99);
 
     myplot.PlotPrctileDelayPerSTA(99);
     % myplot.PlotCDFdelayTotal();
@@ -244,43 +250,37 @@ for i = 1:iterations
     % myplot.PlotAPcollisionProb();
     % myplot.PlotSTAselectionCounter();
 
-    
 
 
 
 
 
-    % B = [[prctile(simDCF.delayvector,99)*1000, prctile(simCSRNumPk.delayvector,99)*1000, prctile(simCSROldPk.delayvector,99)*1000, prctile(simCSRWeighted.delayvector,99)*1000];
-    %             [prctile(simDCF.delayvector,50)*1000, prctile(simCSRNumPk.delayvector,50)*1000, prctile(simCSROldPk.delayvector,50)*1000, prctile(simCSRWeighted.delayvector,50)*1000]];
-    %
-    % disp(B);
 
-    % B = [[prctile(DCFdelay,99)*1000, prctile(CSRNumPkdelay,99)*1000, prctile(CSROldPkdelay,99)*1000, prctile(CSRWeighteddelay,99)*1000];
-    %     [prctile(DCFdelay,50)*1000, prctile(CSRNumPkdelay,50)*1000, prctile(CSROldPkdelay,50)*1000, prctile(CSRWeighteddelay,50)*1000]];
-    % 
-    % disp(B);
+    B = [[prctile(simDCF.delayvector,99)*1000, prctile(simCSRNumPk.delayvector,99)*1000, prctile(simCSROldPk.delayvector,99)*1000, prctile(simCSRWeighted.delayvector,99)*1000];
+                [prctile(simDCF.delayvector,50)*1000, prctile(simCSRNumPk.delayvector,50)*1000, prctile(simCSROldPk.delayvector,50)*1000, prctile(simCSRWeighted.delayvector,50)*1000]];
+
+    disp(B);
 
     % DCFdelay = [DCFdelay;simDCF.delayvector];
     % CSRNumPkdelay = [CSRNumPkdelay;simCSRNumPk.delayvector];
     % CSROldPkdelay = [CSROldPkdelay;simCSROldPk.delayvector];
     % CSRWeighteddelay = [CSRWeighteddelay;simCSRWeighted.delayvector];
-    
+
+    DCFdelay = simDCF.delayvector;
+    CSRNumPkdelay = simCSRNumPk.delayvector;
+    CSROldPkdelay = simCSROldPk.delayvector;
+    CSRWeighteddelay = simCSRWeighted.delayvector;
+
+    % % % %%% Saving variables
+    % Resultsfilepath = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load/Deployment', int2str(i));
+    % if ~exist(Resultsfilepath, 'dir')
+    %     mkdir(Resultsfilepath);
+    % end
+    % 
+    % parsave(Resultsfilepath, DCFdelay, CSRNumPkdelay, CSROldPkdelay, CSRWeighteddelay);
+
     % updateWaitbar();
 end
-
-
-% % %%% Saving variables
-% DCFfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load', '/DCFdelay.mat');
-% save(DCFfilename,"DCFdelay");
-
-% CSRNumPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRNumPkdelay.mat');
-% save(CSRNumPkfilename,"CSRNumPkdelay");
-
-% CSROldPkfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSROldPkdelay.mat');
-% save(CSROldPkfilename,"CSROldPkdelay");
-
-% CSRWeightedfilename = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load','/CSRWeighteddelay.mat');
-% save(CSRWeightedfilename,"CSRWeighteddelay");
 
 
 

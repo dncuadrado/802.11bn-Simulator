@@ -373,8 +373,6 @@ classdef MyPlots
             % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             fprintf('------------------------------------------------------------------------ \n');
             fprintf('Deployment %d  \n',varargin{1});
-
-            percentile = NaN(self.n_STAs, self.numberOfmechanisms);  %STAs, number of mechanisms introduced
             
             % Iterate over each mechanism and compute the percentile delay for each STA.
 
