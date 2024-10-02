@@ -88,14 +88,9 @@ mySimValidation(AP_number, STA_number, grid_value, sim);
 %%% Loading the deployment dataset
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 
-  
-DCFdelay = [];
-CSRNumPkdelay = [];
-CSROldPkdelay = [];
-CSRWeighteddelay = [];
 
-parfor i = 86
-    % i=86;
+for i = 36
+    % i=36;
     %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %% Devices deployment (scenarios are randomly per default if "rng" above is commented )
     % [AP_matrix, STA_matrix] = AP_STA_coordinates(AP_number, STA_number, scenario_type, grid_value);
@@ -104,12 +99,11 @@ parfor i = 86
     %%% Create a database with the RSSI values between all the APs and STAs and the association between APs and STAs
     [RSSI_dB_vector_to_export, association, ~] = RSSI_database(tx_power_ss, Cca, AP_matrix, STA_matrix, scenario_type, walls);
 
-    [CGs_STAs, ~] = CG_creation(AP_number, STA_number, DCFoverheads, CSRoverheads, ...
-        Pn_dBm, Nsc, Nss, RSSI_dB_vector_to_export, association, TXOP_duration);
-    % disp(CGs_STAs);
-
-    [per_STA_DCF_throughput_bianchi, ~] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
-        Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads);
+    % [CGs_STAs, ~] = CG_creation(AP_number, STA_number, DCFoverheads, CSRoverheads, ...
+    %     Pn_dBm, Nsc, Nss, RSSI_dB_vector_to_export, association, TXOP_duration);
+    % 
+    % [per_STA_DCF_throughput_bianchi, ~] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
+    %     Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads);
 
 
     % %%% Deployment PLOT
@@ -157,8 +151,8 @@ parfor i = 86
         error('The source of traffic generation finishes before the end of the simulation. Consider to increase the value of event_number or reduce timestamp_to_stop value');
     end
 
-    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% DCF
     rng(1);
@@ -193,7 +187,7 @@ parfor i = 86
     simCSROldPk.InitSTA();                                    % Initializing STAs
     simCSROldPk.Start();
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+    % 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% CSR Weighted
     rng(1);
@@ -202,22 +196,33 @@ parfor i = 86
     simCSRWeighted.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
     simCSRWeighted.simulation_system = 'CSR';
     simCSRWeighted.scheduler = 'Weighted';
+    simCSRWeighted.alpha_ = 0;
+    simCSRWeighted.beta_ = 3/4;
     simCSRWeighted.InitSTA();                                    % Initializing STAs
     simCSRWeighted.Start();
+    %%%   1: alpha_ = 1/4   ,    beta_ = 1/4
+        % 2: alpha_ = 1/4   ,    beta_ = 1/2
+        % 3: alpha_ = 1/4   ,    beta_ = 3/4
+        % 4: alpha_ = 1/2   ,    beta_ = 1/4
+        % 5: alpha_ = 1/2   ,    beta_ = 1/2    Ok
+        % 6: alpha_ = 1/2   ,    beta_ = 3/4
+        % 7: alpha_ = 3/4   ,    beta_ = 1/4
+        % 8: alpha_ = 3/4   ,    beta_ = 1/2
+        % 9: alpha_ = 3/4   ,    beta_ = 3/4
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % % % % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % % % % % %%% CSR Hybrid
-    % % % % % rng(1);
-    % % % % % simCSRHybrid = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
-    % % % % %         priority, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
-    % % % % % simCSRHybrid.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
-    % % % % % simCSRHybrid.simulation_system = 'CSR';
-    % % % % % simCSRHybrid.scheduler = 'Hybrid';
-    % % % % % simCSRHybrid.InitSTA();                                    % Initializing STAs
-    % % % % % simCSRHybrid.Start();
-    % % % % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % % % % %
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % %%% CSR Hybrid
+    % rng(1);
+    % simCSRHybrid = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    %         scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
+    % simCSRHybrid.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
+    % simCSRHybrid.simulation_system = 'CSR';
+    % simCSRHybrid.scheduler = 'Hybrid';
+    % simCSRHybrid.InitSTA();                                    % Initializing STAs
+    % simCSRHybrid.Start();
+    % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 
@@ -239,7 +244,7 @@ parfor i = 86
 
     myplot = MyPlots(simDCF, simCSRNumPk, simCSROldPk, simCSRWeighted);
     myplot.PlotPercentileVerbose(i, 50, 99);
-
+    % 
     myplot.PlotPrctileDelayPerSTA(99);
     % myplot.PlotCDFdelayTotal();
     % myplot.PlotCDFdelayPerSTA();
@@ -248,33 +253,19 @@ parfor i = 86
     % myplot.PlotSTAselectionCounter();
 
 
-
-
-
-
-
-    B = [[prctile(simDCF.delayvector,99)*1000, prctile(simCSRNumPk.delayvector,99)*1000, prctile(simCSROldPk.delayvector,99)*1000, prctile(simCSRWeighted.delayvector,99)*1000];
-                [prctile(simDCF.delayvector,50)*1000, prctile(simCSRNumPk.delayvector,50)*1000, prctile(simCSROldPk.delayvector,50)*1000, prctile(simCSRWeighted.delayvector,50)*1000]];
-
-    disp(B);
-
-    % DCFdelay = [DCFdelay;simDCF.delayvector];
-    % CSRNumPkdelay = [CSRNumPkdelay;simCSRNumPk.delayvector];
-    % CSROldPkdelay = [CSROldPkdelay;simCSROldPk.delayvector];
-    % CSRWeighteddelay = [CSRWeighteddelay;simCSRWeighted.delayvector];
-
-    DCFdelay = simDCF.delayvector;
-    CSRNumPkdelay = simCSRNumPk.delayvector;
-    CSROldPkdelay = simCSROldPk.delayvector;
-    CSRWeighteddelay = simCSRWeighted.delayvector;
-
-    % % % %%% Saving variables
+    % DCFdelay = simDCF.delayvector;
+    % CSRNumPkdelay = simCSRNumPk.delayvector;
+    % CSROldPkdelay = simCSROldPk.delayvector;
+    % CSRWeighteddelay = simCSRWeighted.delayvector;
+    % CSRHybriddelay = simCSRHybrid.delayvector;
+    
+    % % % % %%% Saving variables
     % Resultsfilepath = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load/Deployment', int2str(i));
     % if ~exist(Resultsfilepath, 'dir')
     %     mkdir(Resultsfilepath);
     % end
     % 
-    % parsave(Resultsfilepath, DCFdelay, CSRNumPkdelay, CSROldPkdelay, CSRWeighteddelay);
+    % parsave(Resultsfilepath, CSRWeighteddelay);
 
     % updateWaitbar();
 end

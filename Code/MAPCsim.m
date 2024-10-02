@@ -74,6 +74,9 @@ classdef MAPCsim < handle
                                                 %             - Random selection: 'Random'
                                                 %             - Weighted selection: 'Weighted'
                                                 %             - Hybrid selection: 'Hybrid'  
+
+        alpha_ = 1/2;                           % For weighted scheduler- default 1/2
+        beta_ = 1/2;                            % For weighted scheduler- default 1/2
     end
     
     methods
@@ -341,20 +344,19 @@ classdef MAPCsim < handle
                         ScorePackets(i) = sum(self.lastPosPosition(u)-self.firstPosPosition(u) + 1);    % sum all the available packets per group
                         ScoreTimeOldest(i) = min(self.firstPosTimestamp(u));                            % finds the oldest packet per group
                         
-                        if strcmp(self.scheduler,'Weighted')
+                        if strcmp(self.scheduler,'Weighted') || strcmp(self.scheduler,'Hybrid')
                             ei_min = min(self.firstPosTimestamp(u));
                             ei_max = max(self.firstPosTimestamp(u));
                             t = sim_timeline;
                             delta_nt = t - ei_min;
                             Delta_nt = t - ei_max;
-                            alpha_ = 1/2;
-                            beta_ = 1/2;
+
 
                             if length(u) == 1
                                 ScoreWeighted(i) = delta_nt;
                             else
                                 % ScoreWeighted(i) = delta_nt + delta_nt*Delta_nt/(alpha_*delta_nt);   % ok
-                                ScoreWeighted(i) = delta_nt + beta_*(Delta_nt - alpha_*delta_nt);
+                                ScoreWeighted(i) = delta_nt + self.beta_*(Delta_nt - self.alpha_*delta_nt);
                             end
                         end
 
@@ -397,7 +399,7 @@ classdef MAPCsim < handle
                                     [~, idx_score] = max(ScoreWeighted);
                                 case 'Hybrid' % CSR hybrid
                                     if ~isempty([self.tempDelay{:}])
-                                        prcentile = prctile([self.tempDelay{:}],30);
+                                        prcentile = prctile([self.tempDelay{:}],50);
                                         % prcentile = 5E-3;
                                     else
                                         prcentile = 5E-3;
