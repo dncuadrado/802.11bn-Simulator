@@ -383,7 +383,7 @@ classdef MyPlots
                     A = horzcat('self.',self.mechanisms{i});
                     simSystem = eval(A);
                     percentile = prctile(simSystem.delayvector, varargin{j+1})*1000;
-                    texttag = horzcat(self.mechanisms{i}, ' ',num2str(varargin{j+1}), 'th-tile delay = %f ms \n');
+                    texttag = horzcat(self.mechanisms{i}, ' ',num2str(varargin{j+1}), 'th-percentile delay = %f ms \n');
                     fprintf(texttag,percentile);
                 end
             end

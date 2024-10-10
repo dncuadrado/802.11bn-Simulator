@@ -1,28 +1,28 @@
-function parsave(Resultsfilepath, CSRWeighteddelay1)
+function parsave(Resultsfilepath, TATdelay)
 
 
-% 
-% DCFfilename = horzcat(Resultsfilepath,'/DCFdelay.mat');
-% % save(DCFfilename,"DCFdelay");
-% 
-% 
-% CSRNumPkfilename = horzcat(Resultsfilepath,'/CSRNumPkdelay.mat');
-% % save(CSRNumPkfilename,"CSRNumPkdelay");
-% 
-% 
-% CSROldPkfilename = horzcat(Resultsfilepath,'/CSROldPkdelay.mat');
-% % save(CSROldPkfilename,"CSROldPkdelay");
-% 
-% 
-% CSRWeightedfilename = horzcat(Resultsfilepath,'/CSRWeighteddelay.mat');
-% % save(CSRWeightedfilename,"CSRWeighteddelay");
 
-CSRWeighted1filename = horzcat(Resultsfilepath,'/CSRWeighteddelay1.mat');
-save(CSRWeighted1filename,"CSRWeighteddelay1");
+DCFfilename = horzcat(Resultsfilepath,'/DCFdelay.mat');
+save(DCFfilename,"DCFdelay");
 
 
-% CSRHybridfilename = horzcat(Resultsfilepath,'/CSRHybriddelay.mat');
-% save(CSRHybridfilename,"CSRHybriddelay");
+MNPfilename = horzcat(Resultsfilepath,'/MNPdelay.mat');
+save(MNPfilename,"MNPdelay");
+
+
+OPfilename = horzcat(Resultsfilepath,'/OPdelay.mat');
+save(OPfilename,"OPdelay");
+
+
+TATfilename = horzcat(Resultsfilepath,'/TATdelay.mat');
+save(TATfilename,"TATdelay");
+
+TATfilename1 = horzcat(Resultsfilepath,'/TATdelay1.mat');
+save(TATfilename1,"TATdelay1");
+
+
+Hybridfilename = horzcat(Resultsfilepath,'/Hybriddelay.mat');
+save(Hybridfilename,"Hybriddelay");
 
 
 
