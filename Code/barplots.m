@@ -159,16 +159,17 @@ clear all
 
 linestyle = {'-', ':'};
 linewidth = [1.5, 1.5];
-A = [1 2 3 4 5  7 8 9 10 11  13 14 15 16 17];
+
 
 sim_sim = {'20metros-8STAs' '20metros-16STAs' '30metros-16STAs'};
 % sim_sim = {'30metros-16STAs'};
 % sim_sim = {'30metros-16STAs'};
-traffic_type_sim = {'Poisson' 'Bursty'};
-traffic_load_sim = {'low' 'medium' 'high'};
+traffic_type_sim = {'Bursty'};
+% traffic_load_sim = {'low' 'medium' 'high'};
+traffic_load_sim = {'high'};
 
 
-
+% for jjjjj = 1:50
 for j = 1:length(sim_sim)
     sim = sim_sim{j}; 
 
@@ -184,7 +185,7 @@ for j = 1:length(sim_sim)
             allMNPdelayVectors = cell(100, 1);
             allOPdelayVectors = cell(100, 1);
             allTATdelayVectors = cell(100, 1);
-            allTATdelayVectors10 = cell(100, 1);
+            allTATdelayVectors7 = cell(100, 1);
 
 
             % Load each vector and store it in the cell array
@@ -196,29 +197,33 @@ for j = 1:length(sim_sim)
                 MNPfilename = horzcat(Resultsfilepath,'/MNPdelay.mat');
                 OPfilename = horzcat(Resultsfilepath,'/OPdelay.mat');
                 TATfilename = horzcat(Resultsfilepath,'/TATdelay.mat');
-                TATfilename10 = horzcat(Resultsfilepath,'/TATdelay10.mat');
+                TATfilename7 = horzcat('/home/david/Documents/Papers/journal_CSR_scheduling/save/simulations saves --- TAT sweep/7/simulation saves/',sim, '/', traffic_type, '/', traffic_load, ' load/Deployment', int2str(jjjj),'/TATdelay7.mat');
 
                 allDCFdelayVectors{jjjj} = load(DCFfilename).DCFdelay;
                 allMNPdelayVectors{jjjj} = load(MNPfilename).CSRNumPkdelay;
                 allOPdelayVectors{jjjj} = load(OPfilename).CSROldPkdelay;
                 allTATdelayVectors{jjjj} = load(TATfilename).CSRWeighteddelay;
-                allTATdelayVectors10{jjjj} = load(TATfilename10).CSRWeighteddelay10;
+                allTATdelayVectors7{jjjj} = load(TATfilename7).CSRWeighteddelay7;
 
             end
             DCFdelay = vertcat(allDCFdelayVectors{:});
             MNPdelay = vertcat(allMNPdelayVectors{:});
             OPdelay = vertcat(allOPdelayVectors{:});
             TATdelay = vertcat(allTATdelayVectors{:});
-            TATdelay10 = vertcat(allTATdelayVectors10{:});
+            TATdelay7 = vertcat(allTATdelayVectors7{:});
 
 
-            B = [[prctile(DCFdelay,99)*1000, prctile(MNPdelay,99)*1000, prctile(OPdelay,99)*1000, prctile(TATdelay,99)*1000, prctile(TATdelay10,99)*1000];
-                [prctile(DCFdelay,50)*1000, prctile(MNPdelay,50)*1000, prctile(OPdelay,50)*1000, prctile(TATdelay,50)*1000, prctile(TATdelay10,50)*1000]];
+            B = [[prctile(DCFdelay,99)*1000, prctile(MNPdelay,99)*1000, prctile(OPdelay,99)*1000, prctile(TATdelay,99)*1000, prctile(TATdelay7,99)*1000];
+                [prctile(DCFdelay,50)*1000, prctile(MNPdelay,50)*1000, prctile(OPdelay,50)*1000, prctile(TATdelay,50)*1000, prctile(TATdelay7,50)*1000]];
             delay_values = [delay_values B];
 
         end
         yvalues = sprintfc('%.2f',delay_values(1,:));
         figure('pos', [400,400,700,600])
+
+        A = 1:(size(B,2)*length(traffic_load_sim)+length(traffic_load_sim)-1);
+        A((size(B,2)+1):(size(B,2)+1):(size(B,2)+1)*(length(traffic_load_sim)-1)) = [];
+
         for i = 1:2
             b = bar(A, delay_values(i,:));
             b.LineStyle = linestyle(i);
@@ -228,32 +233,44 @@ for j = 1:length(sim_sim)
                 b.EdgeColor = 'flat';
                 b.FaceColor = 'flat';
                 b.FaceAlpha = 0.5;
-                if length(traffic_load_sim) == 2
+                if length(traffic_load_sim) == 1
                     b.CData(1,:) = [0.2118, 0.6353, 0.6784];        
                     b.CData(2,:) = [0.9373, 0.5294, 0.2588];        
                     b.CData(3,:) = [0.5294, 0.3686, 0.7098];       
-                    b.CData(4,:) = [0.4588, 0.6863, 0.3137];        
-        
-                    b.CData(5,:) = [0.2118, 0.6353, 0.6784];
-                    b.CData(6,:) = [0.9373, 0.5294, 0.2588];
-                    b.CData(7,:) = [0.5294, 0.3686, 0.7098];
-                    b.CData(8,:) = [0.4588, 0.6863, 0.3137];
-        
-                elseif length(traffic_load_sim) == 3
-                    b.CData(1,:) = [0.2118, 0.6353, 0.6784];
+                    b.CData(4,:) = [0.4588, 0.6863, 0.3137];
+                    b.CData(5,:) = [0.9608, 0.7725, 0.2588];
+
+                elseif length(traffic_load_sim) == 2
+                    b.CData(1,:) = [0.2118, 0.6353, 0.6784];        
                     b.CData(2,:) = [0.9373, 0.5294, 0.2588];        
                     b.CData(3,:) = [0.5294, 0.3686, 0.7098];       
-                    b.CData(4,:) = [0.4588, 0.6863, 0.3137];        
+                    b.CData(4,:) = [0.4588, 0.6863, 0.3137];
+                    b.CData(5,:) = [0.9608, 0.7725, 0.2588];
+                    
+                    b.CData(6,:) = [0.2118, 0.6353, 0.6784];
+                    b.CData(7,:) = [0.9373, 0.5294, 0.2588];
+                    b.CData(8,:) = [0.5294, 0.3686, 0.7098];
+                    b.CData(9,:) = [0.4588, 0.6863, 0.3137];
+                    b.CData(10,:) = [0.9608, 0.7725, 0.2588];
         
-                    b.CData(5,:) = [0.2118, 0.6353, 0.6784];
-                    b.CData(6,:) = [0.9373, 0.5294, 0.2588];
-                    b.CData(7,:) = [0.5294, 0.3686, 0.7098];
-                    b.CData(8,:) = [0.4588, 0.6863, 0.3137];
-        
-                    b.CData(9,:) = [0.2118, 0.6353, 0.6784];
-                    b.CData(10,:) = [0.9373, 0.5294, 0.2588];
-                    b.CData(11,:) = [0.5294, 0.3686, 0.7098];
-                    b.CData(12,:) = [0.4588, 0.6863, 0.3137];
+                elseif length(traffic_load_sim) == 3
+                    b.CData(1,:) = [0.2118, 0.6353, 0.6784];        
+                    b.CData(2,:) = [0.9373, 0.5294, 0.2588];        
+                    b.CData(3,:) = [0.5294, 0.3686, 0.7098];       
+                    b.CData(4,:) = [0.4588, 0.6863, 0.3137];
+                    b.CData(5,:) = [0.9608, 0.7725, 0.2588];
+                    
+                    b.CData(6,:) = [0.2118, 0.6353, 0.6784];
+                    b.CData(7,:) = [0.9373, 0.5294, 0.2588];
+                    b.CData(8,:) = [0.5294, 0.3686, 0.7098];
+                    b.CData(9,:) = [0.4588, 0.6863, 0.3137];
+                    b.CData(10,:) = [0.9608, 0.7725, 0.2588];
+
+                    b.CData(11,:) = [0.2118, 0.6353, 0.6784];
+                    b.CData(12,:) = [0.9373, 0.5294, 0.2588];
+                    b.CData(13,:) = [0.5294, 0.3686, 0.7098];
+                    b.CData(14,:) = [0.4588, 0.6863, 0.3137];
+                    b.CData(15,:) = [0.9608, 0.7725, 0.2588];
                 end
 
                 title('', 'interpreter','latex', 'FontSize', 14);
@@ -287,6 +304,8 @@ for j = 1:length(sim_sim)
 
 end
 
+% end
+
 
 
 %% For the 12 TAT settings
@@ -310,12 +329,12 @@ colors = {
     [0.8, 0.5, 0.4]     % Peach
 };
 
-% sim_sim = {'20metros-8STAs' '20metros-16STAs' '30metros-16STAs'};
+sim_sim = {'20metros-8STAs' '20metros-16STAs' '30metros-16STAs'};
 % sim_sim = {'20metros-8STAs'};
-sim_sim = {'20metros-16STAs'};
+% sim_sim = {'20metros-16STAs'};
 traffic_type_sim = {'Bursty'};
 % traffic_load_sim = {'low' 'medium' 'high'};
-traffic_load_sim = {'medium'};
+traffic_load_sim = {'high'};
 
 
 
@@ -505,7 +524,7 @@ for j = 1:length(sim_sim)
                     yticks(y1:(y2-y1)/5:y2);
                     y_offset = y1-(y2-y1)/8;  % Adjust vertical position for alpha labels
                 case 'high'
-                    y1 = 40;
+                    y1 = 30;
                     y2 = 50;
                     ylim([y1 y2])
                     yticks(y1:(y2-y1)/5:y2);
