@@ -69,14 +69,14 @@ classdef MAPCsim < handle
         simulation_system
         validationFlag
         CGs_STAs                                % Matrix that stores the C-SR groups
-        scheduler                               % scheduling: - Number of packets: 'NumPk' 
-                                                %             - Oldest packet: 'OldPk'
+        scheduler                               % scheduling: - Number of packets: 'MNP' 
+                                                %             - Oldest packet: 'OP'
                                                 %             - Random selection: 'Random'
-                                                %             - Weighted selection: 'Weighted'
+                                                %             - TAT selection: 'TAT'
                                                 %             - Hybrid selection: 'Hybrid'  
 
-        alpha_ = 1/2;                           % For weighted scheduler- default 1/2
-        beta_ = 1/2;                            % For weighted scheduler- default 1/2
+        alpha_ = 1/2;                           % For TAT scheduler- default 1/2
+        beta_ = 1/2;                            % For TAT scheduler- default 1/2
     end
     
     methods
@@ -334,7 +334,7 @@ classdef MAPCsim < handle
                     uni = cell(size(CGs,1),1);
                     ScorePackets = zeros(size(CGs,1),1);       % Scores the number of packets of each group
                     ScoreTimeOldest = zeros(size(CGs,1),1);          % Scores the timestamp of the oldest packet of the group
-                    ScoreWeighted = zeros(size(CGs,1),1); 
+                    ScoreTAT = zeros(size(CGs,1),1); 
 
                     for i = 1:size(CGs,1)
                         u = unique(CGs(i,:));
@@ -344,7 +344,7 @@ classdef MAPCsim < handle
                         ScorePackets(i) = sum(self.lastPosPosition(u)-self.firstPosPosition(u) + 1);    % sum all the available packets per group
                         ScoreTimeOldest(i) = min(self.firstPosTimestamp(u));                            % finds the oldest packet per group
                         
-                        if strcmp(self.scheduler,'Weighted') || strcmp(self.scheduler,'Hybrid')
+                        if strcmp(self.scheduler,'TAT') || strcmp(self.scheduler,'Hybrid')
                             ei_min = min(self.firstPosTimestamp(u));
                             ei_max = max(self.firstPosTimestamp(u));
                             t = sim_timeline;
@@ -353,10 +353,10 @@ classdef MAPCsim < handle
 
 
                             if length(u) == 1
-                                ScoreWeighted(i) = delta_nt;
+                                ScoreTAT(i) = delta_nt;
                             else
-                                % ScoreWeighted(i) = delta_nt + delta_nt*Delta_nt/(alpha_*delta_nt);   % ok
-                                ScoreWeighted(i) = delta_nt + self.beta_*(Delta_nt - self.alpha_*delta_nt);
+                                % ScoreTAT(i) = delta_nt + delta_nt*Delta_nt/(alpha_*delta_nt);   % ok
+                                ScoreTAT(i) = delta_nt + self.beta_*(Delta_nt - self.alpha_*delta_nt);
                             end
                         end
 
@@ -379,14 +379,14 @@ classdef MAPCsim < handle
                             self.rrobin_CSR_group_selector = circshift(self.rrobin_CSR_group_selector,1);
                         otherwise
                             switch self.scheduler
-                                case 'NumPk' % priority is the group with the highest number of packets
+                                case 'MNP' % priority is the group with the highest number of packets
                                     [maxScore, idx_score] = max(ScorePackets);          % find the group with the highest number of packets
                                     equalScoreIdx = find(ScorePackets==maxScore);       % looks for more than one group with the same number of packets among the winners
                                     if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
                                         [~, idx_score_temp] = min(ScoreTimeOldest(equalScoreIdx));
                                         idx_score = equalScoreIdx(idx_score_temp);         % select the group with the oldest packet among the winners
                                     end
-                                case 'OldPk' % priority is the group with the oldest packet
+                                case 'OP' % priority is the group with the oldest packet
                                     [minOldestScore, idx_score] = min(ScoreTimeOldest);
                                     equalScoreIdx = find(ScoreTimeOldest==minOldestScore);       % looks for more than one group with the same timestamp among the winners (probably due to the same STA in these groups)
                                     if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
@@ -395,8 +395,8 @@ classdef MAPCsim < handle
                                     end
                                 case 'Random' % random selection
                                     idx_score = randi([1 length(uni)],1,1);
-                                case 'Weighted' % CSR weighted 
-                                    [~, idx_score] = max(ScoreWeighted);
+                                case 'TAT' % CSR TAT 
+                                    [~, idx_score] = max(ScoreTAT);
                                 case 'Hybrid' % CSR hybrid
                                     if ~isempty([self.tempDelay{:}])
                                         prcentile = prctile([self.tempDelay{:}],50);
@@ -405,14 +405,14 @@ classdef MAPCsim < handle
                                         prcentile = 5E-3;
                                     end
 
-                                    if delta_nt > prcentile % OldPk
+                                    if delta_nt > prcentile % OP
                                         [minOldestScore, idx_score] = min(ScoreTimeOldest);
                                         equalScoreIdx = find(ScoreTimeOldest==minOldestScore);       % looks for more than one group with the same timestamp among the winners (probably due to the same STA in these groups)
                                         if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
                                             [~, idx_score_temp] = max(ScorePackets(equalScoreIdx));
                                             idx_score = equalScoreIdx(idx_score_temp);         % select the group with the highest number of packets among the winners
                                         end
-                                    else    % NumPk
+                                    else    % MNP
                                         [maxScore, idx_score] = max(ScorePackets);          % find the group with the highest number of packets
                                         equalScoreIdx = find(ScorePackets==maxScore);       % looks for more than one group with the same number of packets among the winners
                                         if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)

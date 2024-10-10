@@ -5,7 +5,7 @@ tic
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%% IEEE 802.11bn Simulator  %%%%%%%%%%%%%%%%%%
 
-% %%% Define the system simulation system (DCF, ST, CSR)
+% %%% Define the system simulation system (DCF, CSR)
 simulation_system = 'DCF';     % For validating simulated against Bianchi's model for either DCF, C-SR: 
                                % Validation only works for DCF and C-SR. ST is a special case of C-SR.
                            % 1---> select simulation_system = 'DCF' or simulation_system = 'CSR' 
@@ -20,15 +20,15 @@ validationFlag = 'no';                % for validating against Bianchi's model s
 
 
 
-traffic_type = 'Bursty';        % 'Poisson', 'Bursty'         
-traffic_load = 'medium';        % 'low', 'medium' , 'high'    
+traffic_type = 'Poisson';        % 'Poisson', 'Bursty'         
+traffic_load = 'high';        % 'low', 'medium' , 'high'    
 
 %%% CSR related
-scheduler = 'NumPk';               % scheduling: - Number of packets: 'NumPk' 
-                                %             - Oldest packet: 'OldPk'
-                                %             - Random selection: 'Random'
-                                %             - Weighted selection: 'Weighted'
-                                %             - Hybrid selection: 'Hybrid' 
+scheduler = 'MNP';               % scheduling: - MAxNumberOfPackets: 'MNP' 
+                                 %             - Oldest packet: 'OP'
+                                 %             - Random selection: 'Random'
+                                 %             - Traffic-Alignment Tracker selection: 'TAT'
+                                 %             - Hybrid selection: 'Hybrid' 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Input parameters
@@ -165,41 +165,41 @@ for i = 36
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% CSR NumPk
+    %%% CSR MNP
     rng(1);
-    simCSRNumPk = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    simCSRMNP = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
         scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
-    simCSRNumPk.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
-    simCSRNumPk.simulation_system = 'CSR';
-    simCSRNumPk.scheduler = 'NumPk';
-    simCSRNumPk.InitSTA();                                    % Initializing STAs
-    simCSRNumPk.Start();
+    simCSRMNP.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
+    simCSRMNP.simulation_system = 'CSR';
+    simCSRMNP.scheduler = 'MNP';
+    simCSRMNP.InitSTA();                                    % Initializing STAs
+    simCSRMNP.Start();
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% CSR OldPk
+    %%% CSR OP
     rng(1);
-    simCSROldPk = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    simCSROP = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
         scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
-    simCSROldPk.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
-    simCSROldPk.simulation_system = 'CSR';
-    simCSROldPk.scheduler = 'OldPk';
-    simCSROldPk.InitSTA();                                    % Initializing STAs
-    simCSROldPk.Start();
+    simCSROP.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
+    simCSROP.simulation_system = 'CSR';
+    simCSROP.scheduler = 'OP';
+    simCSROP.InitSTA();                                    % Initializing STAs
+    simCSROP.Start();
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% CSR Weighted
+    %%% CSR TAT
     rng(1);
-    simCSRWeighted = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
+    simCSRTAT = MAPCsim(AP_number, STA_number, association, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
         scheduler, simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads);
-    simCSRWeighted.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
-    simCSRWeighted.simulation_system = 'CSR';
-    simCSRWeighted.scheduler = 'Weighted';
-    simCSRWeighted.alpha_ = 0;
-    simCSRWeighted.beta_ = 3/4;
-    simCSRWeighted.InitSTA();                                    % Initializing STAs
-    simCSRWeighted.Start();
+    simCSRTAT.STA_queue_timeline = STAs_arrivals_matrix;    % Loading the traffic dataset and assigning it to the STAs
+    simCSRTAT.simulation_system = 'CSR';
+    simCSRTAT.scheduler = 'TAT';
+    simCSRTAT.alpha_ = 1/2;
+    simCSRTAT.beta_ = 1/2;
+    simCSRTAT.InitSTA();                                    % Initializing STAs
+    simCSRTAT.Start();
     %%%   1: alpha_ = 1/4   ,    beta_ = 1/4
         % 2: alpha_ = 1/4   ,    beta_ = 1/2
         % 3: alpha_ = 1/4   ,    beta_ = 3/4
@@ -242,8 +242,8 @@ for i = 36
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Plots
 
-    myplot = MyPlots(simDCF, simCSRNumPk, simCSROldPk, simCSRWeighted);
-    myplot.PlotPercentileVerbose(i, 50, 99);
+    myplot = MyPlots(simDCF, simCSRMNP, simCSROP, simCSRTAT);
+    % myplot.PlotPercentileVerbose(i, 50, 99);
     % 
     myplot.PlotPrctileDelayPerSTA(99);
     % myplot.PlotCDFdelayTotal();
@@ -254,9 +254,9 @@ for i = 36
 
 
     % DCFdelay = simDCF.delayvector;
-    % CSRNumPkdelay = simCSRNumPk.delayvector;
-    % CSROldPkdelay = simCSROldPk.delayvector;
-    % CSRWeighteddelay = simCSRWeighted.delayvector;
+    % CSRMNPdelay = simCSRMNP.delayvector;
+    % CSROPdelay = simCSROP.delayvector;
+    % CSRTATdelay = simCSRTAT.delayvector;
     % CSRHybriddelay = simCSRHybrid.delayvector;
     
     % % % % %%% Saving variables
@@ -265,7 +265,7 @@ for i = 36
     %     mkdir(Resultsfilepath);
     % end
     % 
-    % parsave(Resultsfilepath, CSRWeighteddelay);
+    % parsave(Resultsfilepath, CSRTATdelay);
 
     % updateWaitbar();
 end

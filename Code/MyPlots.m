@@ -2,13 +2,15 @@ classdef MyPlots
     properties (Access = 'private')
         mechanisms % Cell array to store mechanism names
         numberOfmechanisms
-        colors = {'#B38181', '#819EB3', '#5E4646', '#B3B281'}; % Predefined colors
+        % colors = {'#B38181', '#819EB3', '#5E4646', '#B3B281'}; % Predefined colors
+        colors = {'#36A2AD', '#EF8742', '#875EB5', '#75AF50', '#F5C542'};
+        
         markers = {'o', '^', 'square', 'pentagram'};
 
         DCF
-        NumPk
-        OldPk
-        Weighted
+        MNP
+        OP
+        TAT
 
         %%% System-related
         n_APs
@@ -29,15 +31,15 @@ classdef MyPlots
                         if contains(varargin{i}.simulation_system, 'DCF')
                             self.mechanisms{end + 1} = 'DCF';
                             self.DCF = varargin{i};
-                        elseif contains(varargin{i}.scheduler, 'NumPk')
-                            self.mechanisms{end + 1} = 'NumPk';
-                            self.NumPk = varargin{i};
-                        elseif contains(varargin{i}.scheduler, 'OldPk')
-                            self.mechanisms{end + 1} = 'OldPk';
-                            self.OldPk = varargin{i};
-                        elseif contains(varargin{i}.scheduler, 'Weighted')
-                            self.mechanisms{end + 1} = 'Weighted';
-                            self.Weighted = varargin{i};
+                        elseif contains(varargin{i}.scheduler, 'MNP')
+                            self.mechanisms{end + 1} = 'MNP';
+                            self.MNP = varargin{i};
+                        elseif contains(varargin{i}.scheduler, 'OP')
+                            self.mechanisms{end + 1} = 'OP';
+                            self.OP = varargin{i};
+                        elseif contains(varargin{i}.scheduler, 'TAT')
+                            self.mechanisms{end + 1} = 'TAT';
+                            self.TAT = varargin{i};
                         end
                 end
             end
@@ -55,7 +57,7 @@ classdef MyPlots
         function CustomizeScatterPlot(self, actors, parameter, titletag, ylabeltag)
             % Plotting using scatter plot for each active mechanism
              
-            figure('pos', [400,400,700,400]);
+            figure('pos', [400,400,700,500]);
             hold on;
 
             % Scatter plot each mechanism without skipping based on data checks
@@ -265,7 +267,7 @@ classdef MyPlots
             end
             
             titletag = '';
-            ylabeltag = horzcat(num2str(pctile),'$^\mathrm{th}$ Percentile of Packet Delay [ms]');
+            ylabeltag = horzcat(num2str(pctile),'$^\mathrm{th}$ percentile delay [ms]');
             self.CustomizeScatterPlot(self.n_STAs, percentile, titletag, ylabeltag);
 
 
