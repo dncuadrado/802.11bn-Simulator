@@ -329,9 +329,9 @@ colors = {
     [0.8, 0.5, 0.4]     % Peach
 };
 
-sim_sim = {'20metros-8STAs' '20metros-16STAs' '30metros-16STAs'};
+% sim_sim = {'20metros-8STAs' '20metros-16STAs' '30metros-16STAs'};
 % sim_sim = {'20metros-8STAs'};
-% sim_sim = {'20metros-16STAs'};
+sim_sim = {'20metros-16STAs'};
 traffic_type_sim = {'Bursty'};
 % traffic_load_sim = {'low' 'medium' 'high'};
 traffic_load_sim = {'high'};
@@ -524,7 +524,7 @@ for j = 1:length(sim_sim)
                     yticks(y1:(y2-y1)/5:y2);
                     y_offset = y1-(y2-y1)/8;  % Adjust vertical position for alpha labels
                 case 'high'
-                    y1 = 30;
+                    y1 = 40;
                     y2 = 50;
                     ylim([y1 y2])
                     yticks(y1:(y2-y1)/5:y2);
