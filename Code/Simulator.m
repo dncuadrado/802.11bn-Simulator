@@ -20,7 +20,7 @@ validationFlag = 'no';                % for validating against Bianchi's model s
 
 
 
-traffic_type = 'Poisson';        % 'Poisson', 'Bursty'         
+traffic_type = 'Bursty';        % 'Poisson', 'Bursty'         
 traffic_load = 'high';        % 'low', 'medium' , 'high'    
 
 %%% CSR related
@@ -35,7 +35,7 @@ scheduler = 'MNP';               % scheduling: - MAxNumberOfPackets: 'MNP'
 
 %%% Scenario-related
 AP_number = 4;          % Number of APs
-STA_number = 8;         % Number of STAs
+STA_number = 16;         % Number of STAs
 grid_value = 40;        % Length of the scenario: grid_value x grid_value
 scenario_type = 'grid';           % scenario_type: 'grid' ---> APs are placed in the centre of each subarea and STAs around them
                                 %                'random' ---> both APs and STAs randomly deployed all over the entire area 
@@ -65,7 +65,7 @@ L = 12E3;                   % Number of bits per single frame
 
 rng(1);            % For reproducibility   
 
-iterations = 1;
+iterations = 100;
 
 % STA_matrix_save = zeros(STA_number,2,iterations);
 % for j=1:iterations
@@ -80,7 +80,7 @@ AP_matrix = [grid_value/4,grid_value/4;
     3*grid_value/4,3*grid_value/4];
 
 
-sim = '20metros-8STAs';
+sim = '20metros-16STAs';
 
 %%% To validate my specific simulations
 mySimValidation(AP_number, STA_number, grid_value, sim);
@@ -89,7 +89,7 @@ mySimValidation(AP_number, STA_number, grid_value, sim);
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 
 
-for i = 36
+for i = 1:iterations
     % i=36;
     %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %% Devices deployment (scenarios are randomly per default if "rng" above is commented )
@@ -243,14 +243,15 @@ for i = 36
     %%% Plots
 
     myplot = MyPlots(simDCF, simMNP, simOP, simTAT);
+    % myplot = MyPlots(simDCF);
     myplot.PlotPercentileVerbose(i, 50, 99);
     % 
-    myplot.PlotPrctileDelayPerSTA(99);
-    myplot.PlotCDFdelayTotal();
-    myplot.PlotCDFdelayPerSTA();
-    myplot.PlotTXOPwinNumber();
-    myplot.PlotAPcollisionProb();
-    myplot.PlotSTAselectionCounter();
+    % myplot.PlotPrctileDelayPerSTA(99);
+    % myplot.PlotCDFdelayTotal();
+    % myplot.PlotCDFdelayPerSTA();
+    % myplot.PlotTXOPwinNumber();
+    % myplot.PlotAPcollisionProb();
+    % myplot.PlotSTAselectionCounter();
 
 
     % DCFdelay = simDCF.delayvector;
