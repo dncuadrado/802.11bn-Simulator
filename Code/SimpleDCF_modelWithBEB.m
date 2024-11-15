@@ -1,9 +1,17 @@
-function [tau_, EB_, p_] = SimpleDCF_modelWithBEB(N)
+function [tau_, EB_, p_] = SimpleDCF_modelWithBEB(N, EDCAaccessCategory)
     
     MaxIter=100;
     
-    CWmin = 15;
-    m=6; % CWmax = 1023
+    switch EDCAaccessCategory
+        case 'BE' 
+            % AC_BE
+            CWmin = 15;
+            m=6; % CWmax = 1023
+        case 'VI'
+            % AC_VI
+            CWmin = 7;
+            m=1; % CWmax = 15
+    end
     
     % Initial Values;
     tau(1)=2/(CWmin+2);

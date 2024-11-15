@@ -5,12 +5,13 @@ classdef MyPlots
         % colors = {'#B38181', '#819EB3', '#5E4646', '#B3B281'}; % Predefined colors
         colors = {'#36A2AD', '#EF8742', '#875EB5', '#75AF50', '#F5C542'};
         
-        markers = {'o', '^', 'square', 'pentagram'};
+        markers = {'o', '^', 'square', 'pentagram', 'x'};
 
         DCF
         MNP
         OP
         TAT
+        Hybrid
 
         %%% System-related
         n_APs
@@ -40,6 +41,9 @@ classdef MyPlots
                         elseif contains(varargin{i}.scheduler, 'TAT')
                             self.mechanisms{end + 1} = 'TAT';
                             self.TAT = varargin{i};
+                        elseif contains(varargin{i}.scheduler, 'Hybrid')
+                            self.mechanisms{end + 1} = 'Hybrid';
+                            self.Hybrid = varargin{i};
                         end
                 end
             end

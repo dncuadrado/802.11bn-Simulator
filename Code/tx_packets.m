@@ -1,5 +1,5 @@
 function agg_packets = tx_packets(Nsc, N_bps, Rc, Nss, data_tx_time)
-    % Returns the number of A-MPDU
+    % Returns the A-MPDU length
     
     T_DFT = 12.8e-6;            % OFDM symbol duration
     T_GI = 0.8e-6;              % Guard interval duration  

@@ -1,5 +1,5 @@
 function [per_STA_DCF_throughput_bianchi, prob_col_bianchi] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
-                                            Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads)
+                                            Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads, EDCAaccessCategory)
             
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -13,12 +13,21 @@ function [per_STA_DCF_throughput_bianchi, prob_col_bianchi] = Throughput_DCF_bia
     L = 12e3;           % Single frame length
     % CWmin=15;           % minimum contention window
     Te = 9e-6;          % Duration of a single backoff slot
-    Tcoll = TRTS + TSIFS + TCTS + TDIFS + Te;       % Collision duration
+
+    switch EDCAaccessCategory
+        case 'VI'
+            AIFSN = 2;
+        case 'BE'
+            AIFSN = 3;
+    end
+
+    AIFS = AIFSN*Te + TSIFS;  % AIFSN*slotTime + SIFS
+    Tcoll = TRTS + TSIFS + TCTS + AIFS + Te;       % Collision duration
     
     % m = 6;                  %%% number of backoff stages
     
     %%% Computing bianchi's parameters
-    [tau, ~, prob_col_bianchi] = SimpleDCF_modelWithBEB(AP_number);
+    [tau, ~, prob_col_bianchi] = SimpleDCF_modelWithBEB(AP_number, EDCAaccessCategory);
     pe = (1-tau)^AP_number;
     ps = AP_number*tau*(1-tau)^(AP_number-1);
     pc = 1-pe-ps;
@@ -43,7 +52,7 @@ function [per_STA_DCF_throughput_bianchi, prob_col_bianchi] = Throughput_DCF_bia
         [MCS(kk), N_bps(kk), Rc(kk)] = MCS_cal_PER_001(SINR_db);          % MCS calculation
     
         %%%% Validation
-        if MCS(kk) == -1
+        if isnan(MCS(kk))
             error('Not valid MCS');
         end
     
@@ -54,8 +63,6 @@ function [per_STA_DCF_throughput_bianchi, prob_col_bianchi] = Throughput_DCF_bia
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
         %%% Throughput calculation following bianchi's model
-        % DL_throughput_CSR_bianchi(kk) = p_comb*ps_DL*L*sum(per_STA_rx_packets{kk})/(1e6*(pe_DL*Te + ps_DL*(fullOverheads+elapsed_time(ix)) + pc_DL*Tcoll));
-        % per_STA_DCF_throughput_bianchi(kk,1) = p_STA*ps*rx_packets(kk)*L/(1e6*(pe*Te + ps*elapsed_time(kk) + pc*Tcoll));
         per_STA_DCF_throughput_bianchi(kk,1) = p_STA*ps*rx_packets(kk)*L/(1e6*(pe*Te + ps*TXOP_duration + pc*Tcoll));
     end
             

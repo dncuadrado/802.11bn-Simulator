@@ -8,15 +8,17 @@ tic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Input parameters
+EDCAaccessCategory = 'VI';
 
 %%% Scenario-related
 AP_number = 4;          % Number of APs
 STA_number = 8;         % Number of STAs
-% grid_value = 40;        % Length of the scenario: grid_value x grid_value 
-% grid_value = 50;
-grid_value = 40;
+grid_value = 40;        % Length of the scenario: grid_value x grid_value 
+
 scenario_type = 'grid';           % scenario_type: 'grid' ---> APs are placed in the centre of each subarea and STAs around them
                                   %                'random' ---> both APs and STAs randomly deployed all over the entire area 
+
+% sim = '20metros-8STAs';
 
 walls = [0 grid_value grid_value/2 grid_value/2;            % Scenario design: each row contains the coordinates 
         grid_value/2 grid_value/2 0 grid_value];            % of each wall segment: [x1 x2 y1 y2]
@@ -24,7 +26,7 @@ walls = [0 grid_value grid_value/2 grid_value/2;            % Scenario design: e
 % walls = [0 0 0 0];            % No walls
 
 %%% System-related
-TXOP_duration = 5.484E-03;
+TXOP_duration = 5E-3;  % Duration of a TXOP, 5.484E-03;
 Pn_dBm = -95;               % Noise in dbm
 Cca = -82;                  % Clear channel assessment in dBm (default Cca = -82 dBm)
 BW = 80;                    % Bandwidth e.g., 20, 40, 80, 160 [in MHz]  
@@ -33,115 +35,96 @@ L = 12E3;                   % Number of bits per single frame
 
 
 %%% Compute the number of subcarriers, Nsc, as well as the total power used depending on the bandwidth and the number of spatial streams
-[tx_power_ss, Nsc] = TXpowerCalc(BW, Nss);      % tx power per spatial streams and number of subcarriers 
+[MaxTxPower, Nsc] = TXpowerCalc(BW, Nss);      % tx power per spatial streams and number of subcarriers 
 
 %%% Computing the needed overheads based on the simulation system, i.e., for DCF or CSR
 [~, ~, DCFoverheads, CSRoverheads] = OverheadsCalc();
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-iterations = 1E4;
+iterations = 1E3;
 rng(1);            % For reproducibility
 
 per_STA_DCF_throughput_bianchi = zeros(iterations,STA_number);
 DL_throughput_CSR_bianchi = zeros(iterations,STA_number);
 
-% updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
-for i = 1:iterations
+AP_matrix = [grid_value/4,grid_value/4;
+    grid_value/4,3*grid_value/4;
+    3*grid_value/4,grid_value/4;
+    3*grid_value/4,3*grid_value/4];
+
+%%% To validate my specific simulations
+% mySimValidation(AP_number, STA_number, grid_value, sim);
+
+%%% Loading the deployment dataset
+% load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
+
+% SetParalellpool();
+
+updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
+parfor i = 1:iterations
     % disp(i)
     %%% Deployment-dependent %%%%%%%%%%%
     %%% Devices deployment (scenarios are randomly per default if "rng" above is commented )
     [AP_matrix, STA_matrix] = AP_STA_coordinates(AP_number, STA_number, scenario_type, grid_value);
+    % STA_matrix = STA_matrix_save(:,:,i);
 
-
-    % %%% Validation scenario 1 ----- 20 meters 
-    % STA_matrix = [11.0680657344492	9.97455244907084
-    %     5.52668873476985	14.3799130416077
-    %     11.5959666302172	31.4450888096107
-    %     11.6038117039619	29.0249203556387
-    %     28.8890013235228	10.7866157012118
-    %     30.7962909265201	12.8030058826915
-    %     30.0217217427852	31.4189811308726
-    %     32.1057553887391	30.8757003092022];
-
-    % STA_matrix= [   14.2644   13.7394
-    %     11.0591   10.3437
-    %     5.3413   35.4651
-    %     10.2185   39.2305
-    %     30.1845   11.0308
-    %     22.2905   14.1042
-    %     33.9521   35.5857
-    %     25.7944   34.5644]; % new deployment #36
-
-    STA_matrix =  [10.1229   19.3822
-        7.5522   12.4894
-        3.5117   25.5194
-        18.4964   29.9307
-        20.3208   11.2093
-        32.2544    9.8951
-        29.0008   31.3271
-        38.7194   34.3547]; % new new deployment #86
-
-
-
-    %%% Create a database with the RSSI values between all the APs and STAs and the association between APs and STAs
-    [RSSI_dB_vector_to_export, association, ~] = RSSI_database(tx_power_ss, Cca, AP_matrix, STA_matrix, scenario_type, walls);
+    % Association independently of the position of STAs with respect to their corresponding APs
+    association = AP_STA_Association(AP_number, STA_number, scenario_type);
 
     % %%% Deployment PLOT
     % PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    %%% For validating simulated CSR against CSR bianchi's model uncomment this
-    % [CGs_STAs]  = CG_creation_per_STA_brute_force(AP_number, STA_number, DCFoverheads, CSRoverheads, ...
-    %     Pn_dBm, Nsc, Nss, RSSI_dB_vector_to_export, association, TXOP_duration);
-
-    [CGs_STAs, ~] = CG_creation(AP_number, STA_number, DCFoverheads, CSRoverheads, ...
-        Pn_dBm, Nsc, Nss, RSSI_dB_vector_to_export, association, TXOP_duration);
+    %%% Create a database with the RSSI values between all the APs and STAs and the association between APs and STAs
+    [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
     
-    % STA_matrix_save(:,:,i) = STA_matrix;
+    [CGs_STAs, TxPowerMatrix]  = CG_creationAnalytical_TPC(AP_number, STA_number, CSRoverheads, ...
+            Pn_dBm, Nsc, Nss, association, channelMatrix, MaxTxPower, TXOP_duration);
+
+    % [CGs_STAs, TxPowerMatrix] = CG_creationTPC(AP_number, STA_number, CSRoverheads, ...
+    %         Pn_dBm, Nsc, Nss, association, channelMatrix, MaxTxPower, TXOP_duration);
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     [per_STA_DCF_throughput_bianchi(i,:), ~] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
-                                            Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads);
+                                            Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads, EDCAaccessCategory);
 
 
-    [DL_throughput_CSR_bianchi(i,:), ~] = Throughput_CSR_bianchi(AP_number, STA_number, association, CGs_STAs, ...
-                                        RSSI_dB_vector_to_export, Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads, CSRoverheads);
-    % sum(per_STA_DCF_throughput_bianchi(i,:))
-    % sum(DL_throughput_CSR_bianchi(i,:))
-    per_STA_DCF_throughput_bianchi(i,:)
-    DL_throughput_CSR_bianchi(i,:)
-    % if sum(per_STA_DCF_throughput_bianchi(i,:)) - 1E-12 > sum(DL_throughput_CSR_bianchi(i,:))
-    %     error('check')
-    % end
+    [DL_throughput_CSR_bianchi(i,:), ~] = Throughput_CSR_bianchi(AP_number, STA_number, CGs_STAs, TxPowerMatrix, ...
+                                        channelMatrix, Pn_dBm, Nsc, Nss, TXOP_duration, CSRoverheads, EDCAaccessCategory);
     
-    % updateWaitbar(); 
+    % disp(per_STA_DCF_throughput_bianchi(i,:));
+    % disp(DL_throughput_CSR_bianchi(i,:));
+    updateWaitbar(); 
 end
     
 agg_thr_DCF_DL_vector = sum(per_STA_DCF_throughput_bianchi,2);
 agg_thr_cSR_bianchi = sum(DL_throughput_CSR_bianchi,2);
-diff_vector = DL_throughput_CSR_bianchi - per_STA_DCF_throughput_bianchi;
-A = sum(diff_vector > 0,2);
-B = find(A == STA_number);
-[~, idx] = max(sum(diff_vector(B,:),2));
-per_STA_DCF_throughput_bianchi(B(idx),:)
-DL_throughput_CSR_bianchi(B(idx),:)
-STA_matrix_save(:,:,B(idx));
 
+allSTA_DCF = reshape(per_STA_DCF_throughput_bianchi,[],1);
+allSTA_CSR = reshape(DL_throughput_CSR_bianchi,[],1);
+
+%%
 figure
-cdfplot(agg_thr_DCF_DL_vector);
+% cdf1 = cdfplot(allSTA_DCF);
+cdf1 = cdfplot(agg_thr_DCF_DL_vector);
 hold on
-cdfplot(agg_thr_cSR_bianchi);
-hold on
+% cdf2 = cdfplot(allSTA_CSR);
+cdf2 = cdfplot(agg_thr_cSR_bianchi);
 
+
+set(cdf1(:,1), 'LineWidth', 2);
+set(cdf2(:,1), 'LineWidth', 2);
+
+colororder(["#107860";"#912B09"]);
 title('', 'interpreter','latex', 'FontSize', 14)
-xlabel('Aggregate Throughput [Mbps]', 'interpreter','latex', 'FontSize', 14)
+xlabel('', 'interpreter','latex', 'FontSize', 14)
+% xlim([0 110])
 ylabel('F(x)', 'interpreter','latex', 'FontSize', 14)
 set(gca, 'TickLabelInterpreter','latex');
 % legend(name)
 grid on
-
 
 toc

@@ -4,11 +4,11 @@ function loss = Getloss(a_position, b_position, m_NumberOfWalls)
     
     loss = 0.0;            
     
-    m_dBP = 5.0;           % Breaking point distance from which an additional loss factor is added 
+    m_dBP = 10.0;           % Breaking point distance from which an additional loss factor is added 
 
     % m_frequency = 5.2;     % Frequency in GHz; 5-GHz band
     m_frequency = 6;     % Frequency in GHz; 6-GHz band
-    % m_NumberOfWalls = 1;   % Number of walls (default = 3)
+    % m_NumberOfWalls = 0;   % Number of walls (default = 3)
 
     distance = norm(a_position - b_position);
     % distance = 10;

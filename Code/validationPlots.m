@@ -1,8 +1,8 @@
 
 %% validation scenario 1------ 8 STAs --- 20 meters
 clear all
-DCF_throughput = [122.0933  162.7910  108.5273   97.6746  162.7910   97.6746  122.0933  122.0933];
-CSR_throughput = [85.8353  305.0605  121.9453   68.6682  209.7537   68.6682  131.6141  131.6141];
+DCF_throughput = [107.3781   96.6996  145.0494  161.0671  145.0494   96.6996   96.6996  107.3781];
+CSR_throughput = [82.5802   74.2748  185.8056  198.3824  235.4012   74.2748   74.2748   82.5802];
 
 plot_BianchiThroughput = [DCF_throughput;CSR_throughput];
 plot_BianchiThroughput = reshape(plot_BianchiThroughput,[],1)';
@@ -63,8 +63,8 @@ for i = 1:2
         xtickangle(0);
         xlabel('STA', 'interpreter','latex', 'FontSize', 16)
 
-        ylim([0 350]);
-        yticks(0:50:350);
+        ylim([0 250]);
+        yticks(0:50:250);
         ylabel('STA Throughput [Mbps]', 'interpreter','latex', 'FontSize', 16)
         ax = gca;
         ax.XAxis.LineWidth = 1.5;
