@@ -17,7 +17,7 @@ function [tx_power_ss, Nsc] = TXpowerCalc(BW, Nss)
     % if EIRP > 23     % By ETSI constraint EIRP cannot exceed 23 dBm in Europe
     %     EIRP = 23;
     % end
-    EIRP = 18;
+    EIRP = 23;
     tx_power_ss = EIRP - 10*log10(Nss);     % transmission power per spatial stream
 
 

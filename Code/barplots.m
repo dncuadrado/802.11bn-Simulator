@@ -384,14 +384,14 @@ colors = {
 
 
 
-% sim_sim = {'20metros-16STAs'};
-% traffic_type_sim = {'Bursty'};
-% traffic_load_sim = {'high'};
+sim_sim = {'20metros-8STAs'};
+traffic_type_sim = {'Bursty'};
+traffic_load_sim = {'medium'};
 
 
-sim_sim = {'30metros-16STAs'};
-traffic_type_sim = {'VR'};
-traffic_load_sim = {'30-120'};
+% sim_sim = {'30metros-16STAs'};
+% traffic_type_sim = {'VR'};
+% traffic_load_sim = {'30-120'};
 
 
 

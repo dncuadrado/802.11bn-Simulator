@@ -73,17 +73,14 @@ for i = 1:size(map_matrix,1)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%% No TPC (Maximum tx power)
         P = MaxTxPower * ones(length(STAs), 1);
+        P0 = MaxTxPower * ones(length(STAs), 1) / length(STAs);
         
-        %%%% TPC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % % % %%%% TPC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        % %%% 1 - Solving the Opt problem with SQP, 
         % SinrThreshold = SINRstimation(diag(datarate(STAs,APs))./length(STAs), Nsc, Nss);
+        % P = power_allocation_localSQP(length(STAs), noise_power, H, MaxTxPower, P0, Nsc, Nss, SinrThreshold);
 
-        %%% 1 - Solving the Opt problem with SQP, considering the datarate as shannon 
-        % P0 = MaxTxPower * ones(length(STAs), 1) / length(STAs);
-        % % P = power_allocation_localSQP(length(STAs), noise_power, H, MaxTxPower, P0);
-        % [P, ~] = power_allocation_localSQPTEST(length(STAs), noise_power, H, MaxTxPower, P0, SinrThreshold);
-        % if isempty(P)
-        %     P = MaxTxPower * ones(length(STAs), 1);
-        % end
 
         %%% 2 - Solving the Opt problem with Particle Swarm Optimization (PSO), considering the exact value of datarate
         P = power_allocation_particleswarm(length(STAs), noise_power, H, MaxTxPower, Nsc, Nss);
@@ -117,15 +114,8 @@ for i = 1:size(map_matrix,1)
         % with the optimized power, against its corresponding rx_packets 
         % when transmitting alone at maximum power. Note that the CSR part is multiplied by a length(STAs) factor  
         % if length(STAs)*rx_packets(i,APs(k)) >= rx_packets(STAs(k),APs(k))
-        
-        if length(STAs) == 1
-            d = 1;
-        else
-            d = 1;
-        end
-        
-        if  d*length(STAs)*datarate(i,APs(k)) >= datarate(STAs(k),APs(k))
         % if SINR_db(k,1) >= 40
+        if  length(STAs)*datarate(i,APs(k)) >= datarate(STAs(k),APs(k))
             AP_ok = 1;
             continue
         else
@@ -145,5 +135,6 @@ TxPowerMatrix = TxPowerMatrixTemp(comb_ok==1,:);
 
 % Reducing the number of combinations, considering only the successful ones
 CGs_STAs = map_matrix(comb_ok==1,:);  % Final subsets of STAs
-end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+end

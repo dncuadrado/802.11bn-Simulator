@@ -11,7 +11,7 @@ for i = 1:length(rate)
     for j = 1:length(N_bps_list)
         datarate = Nsc*N_bps_list(j)*Rc_list(j)*Nss/(T_DFT + T_GI);
         if datarate >= rate(i)
-            MCS_index = i - 1;
+            MCS_index = j - 1;
             switch MCS_index
                 case 0
                     SinrThreshold(i) = 14.2862;
@@ -44,7 +44,9 @@ for i = 1:length(rate)
                 otherwise 
                     SinrThreshold(i) = 14.2862;
             end
+            break
         end
+        
     end
 end
   
