@@ -18,8 +18,8 @@ validationFlag = 'no';                % for validating against Bianchi's model s
 
 
 
-traffic_type = 'Poisson';        % 'Poisson', 'Bursty', 'VR'
-traffic_load = 'low';        % for BE, i.e., Poisson, Bursty: 'low', 'medium' , 'high'
+traffic_type = 'Bursty';        % 'Poisson', 'Bursty', 'VR'
+traffic_load = 'high';        % for BE, i.e., Poisson, Bursty: 'low', 'medium' , 'high'
                              % for VR:   '40-60', '40-90', '40-120'
 EDCAaccessCategory = 'BE';
 
@@ -72,7 +72,7 @@ mySimValidation(AP_number, STA_number, grid_value, sim);
 %%% Loading the deployment dataset
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 
-SetParalellpool();
+% SetParalellpool();
 
 if strcmp(traffic_type, 'VR')
     EDCAaccessCategory = 'VI';
@@ -105,8 +105,12 @@ for i = 1:iterations
     %%% Traffic-related %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     TrafficfileName = horzcat('STAs_arrivals_matrix',int2str(i), '.mat');
     TrafficfilePath = horzcat('traffic datasets/',sim, '/', traffic_type, '/', traffic_load, '/');
+    
+    % % % %%% Traffic generation
+    STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, ...
+            traffic_type, traffic_load, L, per_STA_DCF_throughput_bianchi, TrafficfileName, TrafficfilePath);
 
-    STAs_arrivals_matrix = load(horzcat(TrafficfilePath, TrafficfileName)).STAs_arrivals_matrix;  % load the traffic dataset
+    % STAs_arrivals_matrix = load(horzcat(TrafficfilePath, TrafficfileName)).STAs_arrivals_matrix;  % load the traffic dataset
 
     %%% Timestamp at which the simulation stops
     timestamp_to_stop = 5;

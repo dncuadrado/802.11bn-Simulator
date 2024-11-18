@@ -1,4 +1,4 @@
-function loss = Getloss(a_position, b_position, m_NumberOfWalls)
+function loss = Getloss(a_position, b_position, m_NumberOfWalls, std_dev)
     % Calculates the pathloss between 2 devices using the Enterprise model 
     % defined for 802.11ax. 
     
@@ -19,8 +19,10 @@ function loss = Getloss(a_position, b_position, m_NumberOfWalls)
     if distance >= m_dBP
         addLoss = 35*log10(distance/m_dBP);
     end
+    
+    shadowing = std_dev*randn; % in dB
 
-    loss = 40.05 + 20*log10(m_frequency/2.4) + 20*log10(min(distance,m_dBP)) + addLoss + 7*m_NumberOfWalls;
+    loss = 40.05 + 20*log10(m_frequency/2.4) + 20*log10(min(distance,m_dBP)) + addLoss + 7*m_NumberOfWalls + shadowing;
 
 
 

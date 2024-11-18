@@ -465,10 +465,6 @@ classdef MAPCsim < handle
                 idx = rows(sum(self.CGs_STAs(rows,:)~=0,2) == length(STA_rx));
                 P = self.TxPowerMatrix(idx,APs)';
             end
-            std_dev = 5; % Standard deviation of 5 dB for shadowing
-            shadowing = std_dev*randn(size(H)); % in dB
-            H = H.*10.^(shadowing/10); % Converting shadowing to linear, and applying the effect to the channel matrix 
-
             SINR_db = 10*log10((P .* diag(H)) ./ (self.noise_power + sum(H .* P', 2) - diag(H) .* P));
 
             MCS = NaN(length(STA_rx),1);

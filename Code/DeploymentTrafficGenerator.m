@@ -10,7 +10,7 @@ validationFlag = 'no';                % for validating against Bianchi's model s
 
 
 traffic_type = 'VR';        % 'Poisson', 'Bursty', 'VR'
-traffic_load = '40-60';        % for BE, i.e., Poisson, Bursty: 'low', 'medium' , 'high' 
+traffic_load = '30-60';        % for BE, i.e., Poisson, Bursty: 'low', 'medium' , 'high' 
                                 % for VR:   '40-60', '40-90', '40-120'
 EDCAaccessCategory = 'BE';
 
@@ -60,7 +60,7 @@ mySimValidation(AP_number, STA_number, grid_value, sim);
 %%% Loading the deployment dataset
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 
-traffic_load_sim = {'low', 'medium', 'high', 'low', 'medium', 'high','40-60', '40-90', '40-120'};
+traffic_load_sim = {'low', 'medium', 'high', 'low', 'medium', 'high','30-60', '30-90', '30-120'};
 traffic_type_sim = {'Poisson','Poisson', 'Poisson', 'Bursty', 'Bursty', 'Bursty', 'VR', 'VR', 'VR'};
 
 

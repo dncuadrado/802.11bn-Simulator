@@ -19,9 +19,11 @@ for k = 1:size(AP_matrix,1)
                 NumberOfWallsAP_STA_Matrix(kk,k) = NumberOfWallsAP_STA_Matrix(kk,k) + 1;
             end
         end
-        channelCoefficient_dB = Getloss(AP_matrix(k,:), STA_matrix(kk,:), NumberOfWallsAP_STA_Matrix(kk,k));
+        std_dev = 5;  % std deviation for shadowing
+        channelCoefficient_dB = Getloss(AP_matrix(k,:), STA_matrix(kk,:), NumberOfWallsAP_STA_Matrix(kk,k), std_dev);
         channelMatrix(kk,k) = 1/10^(channelCoefficient_dB/10);
         RSSI_dB_vector_to_export(kk,k) = MaxTxPower - channelCoefficient_dB;
+        
     end
     AP_other_vector = setdiff(1:size(AP_matrix,1),k);
     for i = 1:length(AP_other_vector)
@@ -33,10 +35,12 @@ for k = 1:size(AP_matrix,1)
         end
         switch scenario_type
             case 'random'
-                channelCoefficient_dB = Getloss(AP_matrix(k,:), AP_matrix(AP_other_vector(i),:),  NumberOfWallsAP_AP_Matrix(k,AP_other_vector(i)));
+                std_dev = 0;  % no shadowing between APs
+                channelCoefficient_dB = Getloss(AP_matrix(k,:), AP_matrix(AP_other_vector(i),:),  NumberOfWallsAP_AP_Matrix(k,AP_other_vector(i)), std_dev);
                 AP_to_AP_RSSI_matrix(k,AP_other_vector(i)) = MaxTxPower - channelCoefficient_dB;
             case 'grid'
-                channelCoefficient_dB = Getloss(AP_matrix(k,:), AP_matrix(AP_other_vector(i),:),  1);
+                std_dev = 0;  % no shadowing between APs
+                channelCoefficient_dB = Getloss(AP_matrix(k,:), AP_matrix(AP_other_vector(i),:),  1, std_dev);
                 AP_to_AP_RSSI_matrix(k,AP_other_vector(i)) = MaxTxPower - channelCoefficient_dB; % Considering only 1 wall between APs
         end
     end

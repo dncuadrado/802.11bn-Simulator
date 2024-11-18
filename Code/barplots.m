@@ -10,9 +10,9 @@ traffic_type_sim = {'Poisson' 'Bursty'};
 traffic_load_sim = {'medium' 'high'};
 
 % %%% For VR
-% sim_sim = {'30metros-16STAs'};
+% sim_sim = {'20metros-8STAs'};
 % traffic_type_sim = {'VR'};
-% traffic_load_sim = {'30-60', '30-90', '30-120'}; 
+% traffic_load_sim = {'40-60', '40-90', '40-120'}; 
 
 
 
@@ -35,7 +35,7 @@ for j = 1:length(sim_sim)
 
             % Load each vector and store it in the cell array
             for jjjj = 1:100
-                Resultsfilepath = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, '/Deployment', int2str(jjjj));
+                Resultsfilepath = horzcat('save/simulation savesNOtpc/',sim, '/', traffic_type, '/', traffic_load, '/Deployment', int2str(jjjj));
                 % Resultsfilepath = horzcat(traffic_type, '/', traffic_load, '/Deployment', int2str(jjjj));
                 % DCFfilename = horzcat(Resultsfilepath,'/simDCF.mat');
                 % MNPfilename = horzcat(Resultsfilepath,'/simMNP.mat');
@@ -384,9 +384,9 @@ colors = {
 
 
 
-sim_sim = {'20metros-8STAs'};
+sim_sim = {'30metros-16STAs'};
 traffic_type_sim = {'Bursty'};
-traffic_load_sim = {'medium'};
+traffic_load_sim = {'high'};
 
 
 % sim_sim = {'30metros-16STAs'};
@@ -590,12 +590,12 @@ for j = 1:length(sim_sim)
                 case 'high'
                     if strcmp(sim,'30metros-16STAs')
                         y1 = 30;
-                        y2 = 50;
+                        y2 = 80;
                         ylim([y1 y2])
                         yticks(y1:2:y2);
                     elseif strcmp(sim,'20metros-16STAs')
                         y1 = 50;
-                        y2 = 70;
+                        y2 = 100;
                         % y1 = 40;
                         % y2 = 60;
                         ylim([y1 y2])

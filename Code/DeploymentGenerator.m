@@ -7,7 +7,7 @@ tic
 
 
 traffic_type = 'VR';        % 'Poisson', 'Bursty', 'VR'
-traffic_load = '40-60';        % for BE, i.e., Poisson, Bursty: 'low', 'medium' , 'high'
+traffic_load = '30-60';        % for BE, i.e., Poisson, Bursty: 'low', 'medium' , 'high'
                             % for VR:   '40-60', '40-90', '40-120'
 EDCAaccessCategory = 'BE';
 
@@ -16,11 +16,11 @@ EDCAaccessCategory = 'BE';
 
 %%% Scenario-related
 AP_number = 4;          % Number of APs
-STA_number = 8;         % Number of STAs
-grid_value = 40;        % Length of the scenario: grid_value x grid_value
+STA_number = 16;         % Number of STAs
+grid_value = 60;        % Length of the scenario: grid_value x grid_value
 scenario_type = 'grid';           % scenario_type: 'grid' ---> APs are placed in the centre of each subarea and STAs around them
                         %                'random' ---> both APs and STAs randomly deployed all over the entire area
-sim = '20metros-8STAs';
+sim = '30metros-16STAs';
 
 walls = [0 grid_value grid_value/2 grid_value/2;            % Scenario design: each row contains the coordinates
     grid_value/2 grid_value/2 0 grid_value];            % of each wall segment: [x1 x2 y1 y2]
@@ -42,7 +42,14 @@ L = 12E3;                   % Number of bits per single frame
 [preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads] = OverheadsCalc();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-rng(1);            % For reproducibility
+switch sim
+    case '20metros-8STAs'
+        rng(1);            % For reproducibility
+    case '20metros-16STAs'
+        rng(2);
+    case '30metros-16STAs'
+        rng(3);
+end
 
 iterations = 100;
 
@@ -84,7 +91,7 @@ for i = 1:iterations
         [per_STA_DCF_throughput_bianchi, ~] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
             Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads, EDCAaccessCategory);
 
-        if 0.9*min(per_STA_DCF_throughput_bianchi) > 40   % Compare against the VR bitrate
+        if 0.9*min(per_STA_DCF_throughput_bianchi) > 30   % Compare against the VR bitrate
             stop = 1;
         end
     end

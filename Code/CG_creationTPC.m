@@ -77,7 +77,7 @@ for i = 1:size(map_matrix,1)
         
         % % % %%%% TPC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        % %%% 1 - Solving the Opt problem with SQP, 
+        % % %%% 1 - Solving the Opt problem with SQP, 
         % SinrThreshold = SINRstimation(diag(datarate(STAs,APs))./length(STAs), Nsc, Nss);
         % P = power_allocation_localSQP(length(STAs), noise_power, H, MaxTxPower, P0, Nsc, Nss, SinrThreshold);
 
