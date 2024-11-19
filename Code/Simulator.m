@@ -74,13 +74,13 @@ load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 load(horzcat('deployment datasets/',sim, '/channelMatrix_save.mat'));
 load(horzcat('deployment datasets/',sim, '/RSSI_dB_vector_to_export_save.mat'));
 
-SetParalellpool();
+% SetParalellpool();
 
 if strcmp(traffic_type, 'VR')
     EDCAaccessCategory = 'VI';
 end
 
-parfor i = 1:iterations
+for i = 1:iterations
     %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %% Devices deployment (scenarios are randomly per default if "rng" above is commented )
 
@@ -110,7 +110,7 @@ parfor i = 1:iterations
     TrafficfileName = horzcat('STAs_arrivals_matrix',int2str(i), '.mat');
     TrafficfilePath = horzcat('traffic datasets/',sim, '/', traffic_type, '/', traffic_load, '/');
     
-    % % % %%% Traffic generation
+    % % % % %%% Traffic generation
     % STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, ...
     %         traffic_type, traffic_load, L, per_STA_DCF_throughput_bianchi, TrafficfileName, TrafficfilePath);
 
@@ -537,8 +537,8 @@ parfor i = 1:iterations
     %%% Plots
     % SavingDuetoParfor(i,traffic_type, traffic_load, simDCF, simMNP, simOP, simTAT8);
 
-    % myplot = MyPlots(simDCF, simMNP, simOP, simTAT8);
-    % myplot.PlotPercentileVerbose(i, 50, 99);
+    myplot = MyPlots(simDCF, simMNP, simOP, simTAT8);
+    myplot.PlotPercentileVerbose(i, 50, 99);
     % %
     % myplot.PlotPrctileDelayPerSTA(99);
     % myplot.PlotCDFdelayTotal();
