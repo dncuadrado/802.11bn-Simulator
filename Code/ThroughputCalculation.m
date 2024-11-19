@@ -12,13 +12,13 @@ EDCAaccessCategory = 'VI';
 
 %%% Scenario-related
 AP_number = 4;          % Number of APs
-STA_number = 8;         % Number of STAs
-grid_value = 40;        % Length of the scenario: grid_value x grid_value 
+STA_number = 16;         % Number of STAs
+grid_value = 60;        % Length of the scenario: grid_value x grid_value 
 
 scenario_type = 'grid';           % scenario_type: 'grid' ---> APs are placed in the centre of each subarea and STAs around them
                                   %                'random' ---> both APs and STAs randomly deployed all over the entire area 
 
-sim = '20metros-8STAs';
+sim = '30metros-16STAs';
 
 walls = [0 grid_value grid_value/2 grid_value/2;            % Scenario design: each row contains the coordinates 
         grid_value/2 grid_value/2 0 grid_value];            % of each wall segment: [x1 x2 y1 y2]
@@ -58,6 +58,8 @@ mySimValidation(AP_number, STA_number, grid_value, sim);
 
 %%% Loading the deployment dataset
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
+load(horzcat('deployment datasets/',sim, '/channelMatrix_save.mat'));
+load(horzcat('deployment datasets/',sim, '/RSSI_dB_vector_to_export_save.mat'));
 
 % SetParalellpool();
 
@@ -76,8 +78,10 @@ parfor i = 1:iterations
     % PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
 
     %%% Create a database with the RSSI values between all the APs and STAs and the association between APs and STAs
-    [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
-    
+    % [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
+    channelMatrix = channelMatrix_save(:,:,i);
+    RSSI_dB_vector_to_export = RSSI_dB_vector_to_export_save(:,:,i);
+
     % [CGs_STAs, TxPowerMatrix]  = CG_creationAnalytical_TPC(AP_number, STA_number, CSRoverheads, ...
     %         Pn_dBm, Nsc, Nss, association, channelMatrix, MaxTxPower, TXOP_duration);
 

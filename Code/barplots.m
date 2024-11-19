@@ -3,16 +3,17 @@ clear all
 
 linestyle = {'-', ':'};
 linewidth = [1.5, 1.5];
-
+% 
 %%% For BE
 sim_sim = {'20metros-8STAs' '20metros-16STAs' '30metros-16STAs'};
+% sim_sim = {'20metros-8STAs'};
 traffic_type_sim = {'Poisson' 'Bursty'};
 traffic_load_sim = {'medium' 'high'};
 
 % %%% For VR
-% sim_sim = {'20metros-8STAs'};
+% sim_sim = {'30metros-16STAs'};
 % traffic_type_sim = {'VR'};
-% traffic_load_sim = {'40-60', '40-90', '40-120'}; 
+% traffic_load_sim = {'30-60', '30-90', '30-120'}; 
 
 
 
@@ -35,27 +36,30 @@ for j = 1:length(sim_sim)
 
             % Load each vector and store it in the cell array
             for jjjj = 1:100
-                Resultsfilepath = horzcat('save/simulation savesNOtpc/',sim, '/', traffic_type, '/', traffic_load, '/Deployment', int2str(jjjj));
-                % Resultsfilepath = horzcat(traffic_type, '/', traffic_load, '/Deployment', int2str(jjjj));
-                % DCFfilename = horzcat(Resultsfilepath,'/simDCF.mat');
-                % MNPfilename = horzcat(Resultsfilepath,'/simMNP.mat');
-                % OPfilename = horzcat(Resultsfilepath,'/simOP.mat');
-                % TATfilename8 = horzcat(Resultsfilepath,'/simTAT8.mat');
+                Resultsfilepath = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, '/Deployment', int2str(jjjj));
 
                 DCFfilename = horzcat(Resultsfilepath,'/DCFdelay.mat');
                 MNPfilename = horzcat(Resultsfilepath,'/MNPdelay.mat');
                 OPfilename = horzcat(Resultsfilepath,'/OPdelay.mat');
                 TATfilename8 = horzcat(Resultsfilepath,'/TATdelay8.mat');
+                
+                allDCFdelayVectors{jjjj} = load(DCFfilename).DCFdelay;
+                allMNPdelayVectors{jjjj} = load(MNPfilename).MNPdelay;
+                allOPdelayVectors{jjjj} = load(OPfilename).OPdelay;
+                allTATdelayVectors8{jjjj} = load(TATfilename8).TATdelay8;
 
+                % Resultsfilepath = horzcat('mysims/',traffic_type, '/', traffic_load, '/Deployment', int2str(jjjj));
+                % DCFfilename = horzcat(Resultsfilepath,'/simDCF.mat');
+                % MNPfilename = horzcat(Resultsfilepath,'/simMNP.mat');
+                % OPfilename = horzcat(Resultsfilepath,'/simOP.mat');
+                % TATfilename8 = horzcat(Resultsfilepath,'/simTAT8.mat');
+                % 
                 % allDCFdelayVectors{jjjj} = load(DCFfilename).simDCF.delayvector;
                 % allMNPdelayVectors{jjjj} = load(MNPfilename).simMNP.delayvector;
                 % allOPdelayVectors{jjjj} = load(OPfilename).simOP.delayvector;
                 % allTATdelayVectors8{jjjj} = load(TATfilename8).simTAT8.delayvector;
 
-                allDCFdelayVectors{jjjj} = load(DCFfilename).DCFdelay;
-                allMNPdelayVectors{jjjj} = load(MNPfilename).MNPdelay;
-                allOPdelayVectors{jjjj} = load(OPfilename).OPdelay;
-                allTATdelayVectors8{jjjj} = load(TATfilename8).TATdelay8;
+
 
             end
             DCFdelay = vertcat(allDCFdelayVectors{:});

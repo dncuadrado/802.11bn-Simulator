@@ -59,6 +59,8 @@ AP_matrix = [grid_value/4,grid_value/4;
     3*grid_value/4,3*grid_value/4];
 
 STA_matrix_save = NaN(STA_number,2, iterations);
+channelMatrix_save = NaN(STA_number,AP_number, iterations);
+RSSI_dB_vector_to_export_save = NaN(STA_number,AP_number, iterations);
 
 %%% To validate my specific simulations
 mySimValidation(AP_number, STA_number, grid_value, sim);
@@ -97,13 +99,25 @@ for i = 1:iterations
     end
     %
     STA_matrix_save(:,:,i) = STA_matrix;
+    channelMatrix_save(:,:,i) = channelMatrix;
+    RSSI_dB_vector_to_export_save(:,:,i) = RSSI_dB_vector_to_export;
+
 
     %%% Saving the deployment dataset
     filepath = horzcat('deployment datasets/',sim);
     if ~exist(filepath, 'dir')
         mkdir(filepath);
     end
-    filename = horzcat(filepath,'/STA_matrix_save.mat');
-    save(filename, "STA_matrix_save");
+
+    filename1 = horzcat(filepath,'/STA_matrix_save.mat');
+    save(filename1, "STA_matrix_save");
+
+    filename2 = horzcat(filepath,'/channelMatrix_save.mat');
+    save(filename2, "channelMatrix_save");
+
+    filename3 = horzcat(filepath,'/RSSI_dB_vector_to_export_save.mat');
+    save(filename3, "RSSI_dB_vector_to_export_save");
+
+
 end
 toc

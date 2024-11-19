@@ -1,6 +1,6 @@
 function SavingDuetoParfor(i,traffic_type, traffic_load, simDCF, simMNP, simOP, simTAT8)
 
-    Resultsfilepath = horzcat(traffic_type, '/', traffic_load, '/Deployment', int2str(i));
+    Resultsfilepath = horzcat('mysims/',traffic_type, '/', traffic_load, '/Deployment', int2str(i));
     if ~exist(Resultsfilepath, 'dir')
         mkdir(Resultsfilepath);
     end

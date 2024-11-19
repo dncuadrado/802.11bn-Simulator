@@ -71,14 +71,16 @@ mySimValidation(AP_number, STA_number, grid_value, sim);
 
 %%% Loading the deployment dataset
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
+load(horzcat('deployment datasets/',sim, '/channelMatrix_save.mat'));
+load(horzcat('deployment datasets/',sim, '/RSSI_dB_vector_to_export_save.mat'));
 
-% SetParalellpool();
+SetParalellpool();
 
 if strcmp(traffic_type, 'VR')
     EDCAaccessCategory = 'VI';
 end
 
-for i = 1:iterations
+parfor i = 1:iterations
     %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %% Devices deployment (scenarios are randomly per default if "rng" above is commented )
 
@@ -92,7 +94,9 @@ for i = 1:iterations
     % PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
 
     %%% Create a database with the RSSI values between all the APs and STAs and the association between APs and STAs
-    [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
+    % [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
+    channelMatrix = channelMatrix_save(:,:,i);
+    RSSI_dB_vector_to_export = RSSI_dB_vector_to_export_save(:,:,i);
 
     [per_STA_DCF_throughput_bianchi, ~] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
         Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads, EDCAaccessCategory);
@@ -107,10 +111,10 @@ for i = 1:iterations
     TrafficfilePath = horzcat('traffic datasets/',sim, '/', traffic_type, '/', traffic_load, '/');
     
     % % % %%% Traffic generation
-    STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, ...
-            traffic_type, traffic_load, L, per_STA_DCF_throughput_bianchi, TrafficfileName, TrafficfilePath);
+    % STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, ...
+    %         traffic_type, traffic_load, L, per_STA_DCF_throughput_bianchi, TrafficfileName, TrafficfilePath);
 
-    % STAs_arrivals_matrix = load(horzcat(TrafficfilePath, TrafficfileName)).STAs_arrivals_matrix;  % load the traffic dataset
+    STAs_arrivals_matrix = load(horzcat(TrafficfilePath, TrafficfileName)).STAs_arrivals_matrix;  % load the traffic dataset
 
     %%% Timestamp at which the simulation stops
     timestamp_to_stop = 5;
@@ -533,8 +537,8 @@ for i = 1:iterations
     %%% Plots
     % SavingDuetoParfor(i,traffic_type, traffic_load, simDCF, simMNP, simOP, simTAT8);
 
-    myplot = MyPlots(simDCF, simMNP, simOP, simTAT8);
-    myplot.PlotPercentileVerbose(i, 50, 99);
+    % myplot = MyPlots(simDCF, simMNP, simOP, simTAT8);
+    % myplot.PlotPercentileVerbose(i, 50, 99);
     % %
     % myplot.PlotPrctileDelayPerSTA(99);
     % myplot.PlotCDFdelayTotal();

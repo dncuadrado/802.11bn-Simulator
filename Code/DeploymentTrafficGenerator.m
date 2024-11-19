@@ -57,8 +57,10 @@ AP_matrix = [grid_value/4,grid_value/4;
 %%% To validate my specific simulations
 mySimValidation(AP_number, STA_number, grid_value, sim);
 
-%%% Loading the deployment dataset
+%%% Loading the deployment datasets
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
+load(horzcat('deployment datasets/',sim, '/channelMatrix_save.mat'));
+load(horzcat('deployment datasets/',sim, '/RSSI_dB_vector_to_export_save.mat'));
 
 traffic_load_sim = {'low', 'medium', 'high', 'low', 'medium', 'high','30-60', '30-90', '30-120'};
 traffic_type_sim = {'Poisson','Poisson', 'Poisson', 'Bursty', 'Bursty', 'Bursty', 'VR', 'VR', 'VR'};
@@ -87,7 +89,9 @@ for xxx = 1:length(traffic_load_sim)
         % PlotDeployment(AP_matrix, STA_matrix, association, grid_value, walls);
 
         %%% Create a database with the RSSI values between all the APs and STAs and the association between APs and STAs
-        [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
+        % [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
+        channelMatrix = channelMatrix_save(:,:,i);
+        RSSI_dB_vector_to_export = RSSI_dB_vector_to_export_save(:,:,i);
 
         [per_STA_DCF_throughput_bianchi, ~] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
             Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads, EDCAaccessCategory);

@@ -32,6 +32,9 @@ function product_rate = computeRates(P, H, noise_power, N, Nsc, Nss)
     rates = zeros(N, 1); % Initialize rates
 
     % Compute rates for each link
+    % sinr = (P .* diag(H)) ./ (noise_power + sum(H .* P', 2) - diag(H) .* P);
+    % rates = log2(1 + sinr);
+
     sinr_dB = 10*log10((P .* diag(H)) ./ (noise_power + sum(H .* P', 2) - diag(H) .* P));
     for i = 1:N
         [MCS, N_bps, Rc] = MCS_cal_PER_001(sinr_dB(i));
