@@ -83,6 +83,7 @@ classdef MyPlots
             xlim([0.5, actors+0.5]);  % Adding margin before the first STA and after the last one
             xlabel('STA', 'interpreter', 'latex', 'FontSize', 14);
             ylabel(ylabeltag, 'interpreter', 'latex', 'FontSize', 16);
+            ylim([0 ])
             ax = gca;
             ax.XAxis.LineWidth = 1.5;
             ax.YAxis.LineWidth = 1.5;

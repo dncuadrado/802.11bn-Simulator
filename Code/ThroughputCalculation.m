@@ -23,8 +23,6 @@ sim = '30metros-16STAs';
 walls = [0 grid_value grid_value/2 grid_value/2;            % Scenario design: each row contains the coordinates 
         grid_value/2 grid_value/2 0 grid_value];            % of each wall segment: [x1 x2 y1 y2]
 
-% walls = [0 0 0 0];            % No walls
-
 %%% System-related
 TXOP_duration = 5E-3;  % Duration of a TXOP, 5.484E-03;
 Pn_dBm = -95;               % Noise in dbm
@@ -42,7 +40,7 @@ L = 12E3;                   % Number of bits per single frame
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-iterations = 100;
+iterations = 1E3;
 rng(1);            % For reproducibility
 
 per_STA_DCF_throughput_bianchi = zeros(iterations,STA_number);
@@ -56,15 +54,15 @@ AP_matrix = [grid_value/4,grid_value/4;
 %%% To validate my specific simulations
 mySimValidation(AP_number, STA_number, grid_value, sim);
 
-%%% Loading the deployment dataset
+% %%% Loading the deployment dataset
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 load(horzcat('deployment datasets/',sim, '/channelMatrix_save.mat'));
 load(horzcat('deployment datasets/',sim, '/RSSI_dB_vector_to_export_save.mat'));
 
-% SetParalellpool();
+% SetParalellp<ool();
 
-updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
-parfor i = 1:iterations
+% updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
+for i = 1:100
     % disp(i)
     %%% Deployment-dependent %%%%%%%%%%%
     %%% Devices deployment (scenarios are randomly per default if "rng" above is commented )
@@ -99,9 +97,9 @@ parfor i = 1:iterations
     [DL_throughput_CSR_bianchi(i,:), ~] = Throughput_CSR_bianchi(AP_number, STA_number, CGs_STAs, TxPowerMatrix, ...
                                         channelMatrix, Pn_dBm, Nsc, Nss, TXOP_duration, CSRoverheads, EDCAaccessCategory);
     
-    % disp(per_STA_DCF_throughput_bianchi(i,:));
-    % disp(DL_throughput_CSR_bianchi(i,:));
-    updateWaitbar(); 
+    disp(per_STA_DCF_throughput_bianchi(i,:));
+    disp(DL_throughput_CSR_bianchi(i,:));
+    % updateWaitbar(); 
 end
     
 agg_thr_DCF_DL_vector = sum(per_STA_DCF_throughput_bianchi,2);

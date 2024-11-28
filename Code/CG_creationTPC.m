@@ -83,7 +83,7 @@ for i = 1:size(map_matrix,1)
 
 
         %%% 2 - Solving the Opt problem with Particle Swarm Optimization (PSO), considering the exact value of datarate
-        % P = power_allocation_particleswarm(length(STAs), noise_power, H, MaxTxPower, Nsc, Nss);
+        P = power_allocation_particleswarm(length(STAs), noise_power, H, MaxTxPower, Nsc, Nss);
         
         %%% Storing the power vector in TxPowerMatrix
         TxPowerMatrixTemp(i, APs) = P';

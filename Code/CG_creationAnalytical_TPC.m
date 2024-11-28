@@ -146,7 +146,8 @@ TxPowerMatrixTemp = TxPowerMatrixTemp(mask, :);
 %%% Group final selection based on the alpha_coeff %%%%%%%%%%%%%%%%%%%%%%%%%%%
 number_appearance = 1;
 
-% Optimization problem for group selection
+% Optimization problem for group selection. Fair selection, number_appearance defines the same number of occurrences for
+% each STA in the finally selected groups
 selected_rows = selection_optimized(map_matrix, alpha_coeff, number_appearance);
 
 % Heuristic for group selection
@@ -168,7 +169,9 @@ end
 function selected_rows = selection_optimized(map_matrix, alpha_coeff, number_appearance)
     %%% Select the indexes in map_matrix that maximizes the sum of the coefficients in alpha_coeff, 
     % constrained to the same number of occurences, number_appearance, for each STA in 
-    % the final selection. The method used is the solution of an optimization problem 
+    % the final selection. 
+    % The method used is the solution of an optimization problem, considering fairness because all STAs are selected the
+    % same number_appearance
 
     % Define the problem size
     [num_rows, ~] = size(map_matrix);

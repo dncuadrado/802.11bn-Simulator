@@ -3,7 +3,7 @@ clear all
 
 linestyle = {'-', ':'};
 linewidth = [1.5, 1.5];
-% 
+
 %%% For BE
 sim_sim = {'20metros-8STAs' '20metros-16STAs' '30metros-16STAs'};
 % sim_sim = {'20metros-8STAs'};
@@ -36,6 +36,7 @@ for j = 1:length(sim_sim)
 
             % Load each vector and store it in the cell array
             for jjjj = 1:100
+                % 20, 23, 38?, 39?, 48, 61, 83, 85, 
                 Resultsfilepath = horzcat('simulation saves/',sim, '/', traffic_type, '/', traffic_load, '/Deployment', int2str(jjjj));
 
                 DCFfilename = horzcat(Resultsfilepath,'/DCFdelay.mat');
@@ -145,9 +146,9 @@ for j = 1:length(sim_sim)
                     
                     switch traffic_type
                         case 'Poisson'
-                            yposition = -15;
+                            yposition = -7;
                         case 'Bursty'
-                            yposition = -5;
+                            yposition = -4;
                     end
 
                     % Add custom centered labels using text
@@ -160,9 +161,9 @@ for j = 1:length(sim_sim)
 
                     % Add custom centered labels using text
                     if  strcmp(traffic_type,'VR')
-                        text(2.5, -2.5, '60', 'HorizontalAlignment', 'center', 'FontSize', 14, 'Interpreter', 'latex');
-                        text(7.5, -2.5, '90', 'HorizontalAlignment', 'center', 'FontSize', 14, 'Interpreter', 'latex');
-                        text(12.5, -2.5, '120', 'HorizontalAlignment', 'center', 'FontSize', 14, 'Interpreter', 'latex');
+                        text(2.5, -1.5, '60', 'HorizontalAlignment', 'center', 'FontSize', 14, 'Interpreter', 'latex');
+                        text(7.5, -1.5, '90', 'HorizontalAlignment', 'center', 'FontSize', 14, 'Interpreter', 'latex');
+                        text(12.5, -1.5, '120', 'HorizontalAlignment', 'center', 'FontSize', 14, 'Interpreter', 'latex');
                     else
                         text(2.5, -2.5, traffic_load_sim{1}, 'HorizontalAlignment', 'center', 'FontSize', 14, 'Interpreter', 'latex');
                         text(7.5, -2.5, traffic_load_sim{2}, 'HorizontalAlignment', 'center', 'FontSize', 14, 'Interpreter', 'latex');
@@ -173,20 +174,20 @@ for j = 1:length(sim_sim)
                 
                 switch traffic_type
                     case 'Poisson'
-                        ylim([0 350]);
-                        yticks(0:50:350);
+                        ylim([0 150]);
+                        yticks(0:50:150);
                         xlabel('Traffic load', 'interpreter','latex', 'FontSize', 18)
-                        set(get(gca, 'XLabel'), 'Position', [(xticksvector(end)+1)/2 -25 0]);  % Adjust -15 for further down if needed
+                        set(get(gca, 'XLabel'), 'Position', [(xticksvector(end)+1)/2 -11 0]);  % Adjust -15 for further down if needed
                     case 'Bursty'
-                        ylim([0 120]);
-                        yticks(0:20:120);
+                        ylim([0 80]);
+                        yticks(0:20:80);
                         xlabel('Traffic load', 'interpreter','latex', 'FontSize', 18)
-                        set(get(gca, 'XLabel'), 'Position', [(xticksvector(end)+1)/2 -8 0]);  % Adjust -15 for further down if needed
+                        set(get(gca, 'XLabel'), 'Position', [(xticksvector(end)+1)/2 -6 0]);  % Adjust -15 for further down if needed
                     case 'VR' 
-                        ylim([0 50]);
-                        yticks(0:10:50);
+                        ylim([0 40]);
+                        yticks(0:10:40);
                         xlabel('FPS', 'interpreter','latex', 'FontSize', 18)
-                        set(get(gca, 'XLabel'), 'Position', [(xticksvector(end)+1)/2 -4 0]);  % Adjust -10 for further down if needed
+                        set(get(gca, 'XLabel'), 'Position', [(xticksvector(end)+1)/2 -3.5 0]);  % Adjust -10 for further down if needed
                 end
 
                 ylabel('$99^\mathrm{th}$ percentile delay [ms]', 'interpreter','latex', 'FontSize', 16)
@@ -594,12 +595,19 @@ for j = 1:length(sim_sim)
                 case 'high'
                     if strcmp(sim,'30metros-16STAs')
                         y1 = 30;
-                        y2 = 80;
+                        y2 = 40;
                         ylim([y1 y2])
                         yticks(y1:2:y2);
                     elseif strcmp(sim,'20metros-16STAs')
-                        y1 = 50;
-                        y2 = 100;
+                        y1 = 40;
+                        y2 = 55;
+                        % y1 = 40;
+                        % y2 = 60;
+                        ylim([y1 y2])
+                        yticks(y1:5:y2);
+                    elseif strcmp(sim,'20metros-8STAs')
+                        y1 = 40;
+                        y2 = 50;
                         % y1 = 40;
                         % y2 = 60;
                         ylim([y1 y2])
@@ -613,8 +621,8 @@ for j = 1:length(sim_sim)
                 %     yticks(y1:(y2-y1)/5:y2);
                 %     y_offset = y1-(y2-y1)/8;  % Adjust vertical position for alpha labels
                 otherwise
-                    y1 = 10;
-                    y2 = 30;
+                    y1 = 0;
+                    y2 = 20;
                     ylim([y1 y2])
                     yticks(y1:(y2-y1)/5:y2);
                     y_offset = y1-(y2-y1)/8;  % Adjust vertical position for alpha labels

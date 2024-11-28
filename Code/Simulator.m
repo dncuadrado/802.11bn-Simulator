@@ -20,7 +20,7 @@ validationFlag = 'no';                % for validating against Bianchi's model s
 
 traffic_type = 'Bursty';        % 'Poisson', 'Bursty', 'VR'
 traffic_load = 'high';        % for BE, i.e., Poisson, Bursty: 'low', 'medium' , 'high'
-                             % for VR:   '40-60', '40-90', '40-120'
+                             % for VR:   '30-60', '30-90', '30-120'
 EDCAaccessCategory = 'BE';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -80,7 +80,7 @@ if strcmp(traffic_type, 'VR')
     EDCAaccessCategory = 'VI';
 end
 
-for i = 1:iterations
+for i = 20
     %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %% Devices deployment (scenarios are randomly per default if "rng" above is commented )
 
@@ -539,7 +539,7 @@ for i = 1:iterations
 
     myplot = MyPlots(simDCF, simMNP, simOP, simTAT8);
     myplot.PlotPercentileVerbose(i, 50, 99);
-    % %
+    %
     % myplot.PlotPrctileDelayPerSTA(99);
     % myplot.PlotCDFdelayTotal();
     % myplot.PlotCDFdelayPerSTA();
@@ -589,7 +589,6 @@ for i = 1:iterations
     % updateWaitbar();
     % toc
 end
-
 
 
 
