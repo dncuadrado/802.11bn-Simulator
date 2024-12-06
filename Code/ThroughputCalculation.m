@@ -13,12 +13,12 @@ EDCAaccessCategory = 'VI';
 %%% Scenario-related
 AP_number = 4;          % Number of APs
 STA_number = 16;         % Number of STAs
-grid_value = 60;        % Length of the scenario: grid_value x grid_value 
+grid_value = 40;        % Length of the scenario: grid_value x grid_value 
 
 scenario_type = 'grid';           % scenario_type: 'grid' ---> APs are placed in the centre of each subarea and STAs around them
                                   %                'random' ---> both APs and STAs randomly deployed all over the entire area 
 
-sim = '30metros-16STAs';
+sim = '20metros-16STAs';
 
 walls = [0 grid_value grid_value/2 grid_value/2;            % Scenario design: each row contains the coordinates 
         grid_value/2 grid_value/2 0 grid_value];            % of each wall segment: [x1 x2 y1 y2]
@@ -40,7 +40,7 @@ L = 12E3;                   % Number of bits per single frame
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-iterations = 1E3;
+iterations = 1E2;
 rng(1);            % For reproducibility
 
 per_STA_DCF_throughput_bianchi = zeros(iterations,STA_number);
@@ -54,15 +54,15 @@ AP_matrix = [grid_value/4,grid_value/4;
 %%% To validate my specific simulations
 mySimValidation(AP_number, STA_number, grid_value, sim);
 
-% %%% Loading the deployment dataset
+% % %%% Loading the deployment dataset
 load(horzcat('deployment datasets/',sim, '/STA_matrix_save.mat'));
 load(horzcat('deployment datasets/',sim, '/channelMatrix_save.mat'));
 load(horzcat('deployment datasets/',sim, '/RSSI_dB_vector_to_export_save.mat'));
 
-% SetParalellp<ool();
+% SetParalellpool();
 
-% updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
-for i = 1:100
+updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
+parfor i = 1:iterations
     % disp(i)
     %%% Deployment-dependent %%%%%%%%%%%
     %%% Devices deployment (scenarios are randomly per default if "rng" above is commented )
@@ -97,9 +97,9 @@ for i = 1:100
     [DL_throughput_CSR_bianchi(i,:), ~] = Throughput_CSR_bianchi(AP_number, STA_number, CGs_STAs, TxPowerMatrix, ...
                                         channelMatrix, Pn_dBm, Nsc, Nss, TXOP_duration, CSRoverheads, EDCAaccessCategory);
     
-    disp(per_STA_DCF_throughput_bianchi(i,:));
-    disp(DL_throughput_CSR_bianchi(i,:));
-    % updateWaitbar(); 
+    % disp(per_STA_DCF_throughput_bianchi(i,:));
+    % disp(DL_throughput_CSR_bianchi(i,:));
+    updateWaitbar(); 
 end
     
 agg_thr_DCF_DL_vector = sum(per_STA_DCF_throughput_bianchi,2);

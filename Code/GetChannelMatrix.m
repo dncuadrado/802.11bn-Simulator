@@ -14,7 +14,7 @@ AP_to_AP_RSSI_matrix = zeros(size(AP_matrix,1),size(AP_matrix,1));
 for k = 1:size(AP_matrix,1)
     for kk = 1:size(STA_matrix,1)
         for kkk = 1:size(walls,1) % Verifying the number of walls between AP_k and STA_kk
-            isIntersecting = checkSegmentIntersection([AP_matrix(k,1), STA_matrix(kk,1), AP_matrix(k,2), STA_matrix(kk,2)], walls(kkk,:));
+            isIntersecting = checkSegmentIntersection(AP_matrix(k,1), STA_matrix(kk,1), AP_matrix(k,2), STA_matrix(kk,2), walls(kkk,1), walls(kkk,2), walls(kkk,3), walls(kkk,4));
             if isIntersecting
                 NumberOfWallsAP_STA_Matrix(kk,k) = NumberOfWallsAP_STA_Matrix(kk,k) + 1;
             end
@@ -28,7 +28,7 @@ for k = 1:size(AP_matrix,1)
     AP_other_vector = setdiff(1:size(AP_matrix,1),k);
     for i = 1:length(AP_other_vector)
         for ii = 1:size(walls,1) % Verifying the number of walls between AP_k and AP_i
-            isIntersecting = checkSegmentIntersection([AP_matrix(k,1), AP_matrix(AP_other_vector(i),1), AP_matrix(k,2), AP_matrix(AP_other_vector(i),2)], walls(ii,:));
+            isIntersecting = checkSegmentIntersection(AP_matrix(k,1), AP_matrix(AP_other_vector(i),1), AP_matrix(k,2), AP_matrix(AP_other_vector(i),2), walls(ii,1), walls(ii,2), walls(ii,3), walls(ii,4));
             if isIntersecting
                 NumberOfWallsAP_AP_Matrix(k,AP_other_vector(i)) = NumberOfWallsAP_AP_Matrix(k,AP_other_vector(i)) + 1;
             end
