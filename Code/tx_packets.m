@@ -18,12 +18,8 @@ function agg_packets = tx_packets(Nsc, N_bps, Rc, Nss, data_tx_time)
     
     Lmd = 32;                       % MPDU Delimiter (bits) used only in A-MPDU scenarios
     
-        
-    
-    
-    
     %%% Calculates the number of packets that can be tx for a given time
-    agg_packets = fix((1/(Lmd + Lmh + Ld))*((((data_tx_time)*(Nsc*N_bps*Rc*Nss))/...
-                (T_DFT + T_GI))- Lsf - Ltail));
+    % agg_packets = (data_tx_time/(T_DFT + T_GI)*Nsc*N_bps*Rc*Nss-Lsf-Ltail)/(Lmd+Lmh+Ld);
+    agg_packets = floor((floor(data_tx_time/(T_DFT + T_GI))*Nsc*N_bps*Rc*Nss-Lsf-Ltail)/(Lmd+Lmh+Ld));
             
 end

@@ -4,11 +4,10 @@ function [per_STA_DCF_throughput_bianchi, prob_col_bianchi] = Throughput_DCF_bia
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     TSIFS = 16e-6;      % Shortest Interframe spacing (SIFS time)
-    TDIFS = 34E-6;      % DCF Interframe spacing (DIFS time)
-    % TRTS = 56E-6;       % RTS duration
-    % TCTS = 48E-6;       % CTS duration
-    TRTS = 42E-6;
-    TCTS = 36E-6;
+    % TDIFS = 34E-6;      % DCF Interframe spacing (DIFS time)
+    TRTS = 56E-6;       % RTS duration
+    TCTS = 48E-6;       % CTS duration
+
     
     L = 12e3;           % Single frame length
     % CWmin=15;           % minimum contention window

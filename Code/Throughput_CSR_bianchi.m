@@ -5,10 +5,14 @@ function [DL_throughput_CSR_bianchi, prob_col_bianchi] = Throughput_CSR_bianchi(
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% MAPC overheads
     
-    T_SIFS = 16e-6;             % Shortest Interframe spacing (SIFS time)
-    T_DIFS = 34E-6;
-    T_RTS = 42E-6;
-    T_CTS = 36E-6;
+    TSIFS = 16e-6;             % Shortest Interframe spacing (SIFS time)
+    % TDIFS = 34E-6;
+    % TRTS = 56E-6;
+    % TCTS = 48E-6;
+
+    TMAPC_ICF = 74.4E-6;
+    TMAPC_ICR = 88E-6;
+
     Te = 9e-6;
 
     rx_packets = zeros(size(CGs_STAs,1),size(CGs_STAs,2));
@@ -60,7 +64,6 @@ function [DL_throughput_CSR_bianchi, prob_col_bianchi] = Throughput_CSR_bianchi(
     pe_DL = (1-tau_DL)^AP_number;
     ps_DL = AP_number*tau_DL*(1-tau_DL)^(AP_number-1); 
     pc_DL = 1-pe_DL-ps_DL;
-    % Tcoll = T_RTS + T_SIFS + T_CTS + T_DIFS + Te;
 
     switch EDCAaccessCategory
         case 'VI'
@@ -69,8 +72,8 @@ function [DL_throughput_CSR_bianchi, prob_col_bianchi] = Throughput_CSR_bianchi(
             AIFSN = 3;
     end
 
-    AIFS = AIFSN*Te + T_SIFS;  % AIFSN*slotTime + SIFS
-    Tcoll = T_RTS + T_SIFS + T_CTS + AIFS + Te;       % Collision duration
+    AIFS = AIFSN*Te + TSIFS;  % AIFSN*slotTime + SIFS
+    Tcoll = TMAPC_ICF + TSIFS + TMAPC_ICR + AIFS + Te;       % Collision duration
 
     p_comb = 1/(size(CGs_STAs,1));   %%% all groups with the same tx prob (round robin)
     
@@ -82,5 +85,4 @@ function [DL_throughput_CSR_bianchi, prob_col_bianchi] = Throughput_CSR_bianchi(
             error('Throughput = 0 is not allowed');
         end
     end  
-
 end

@@ -6,7 +6,7 @@ function [P_opt] = power_allocation_localSQP(N, noise_power, H, P_max, P0, Nsc, 
 objective = @(P) -computeRates(P, H, noise_power, N, Nsc, Nss); % Maximize product of rates
 
 % Constraints
-lb = zeros(N, 1); % Lower bound: P >= 0
+lb = ones(N, 1); % Lower bound: P >= 0
 ub = P_max * ones(N, 1); % Upper bound: P <= P_max
 
 % Nonlinear constraint function that enforces SINR threshold
@@ -53,8 +53,16 @@ for i = 1:N
     end
 end
 
+% 
+% if ~all(rates) 
+%     product_rate = 0;
+% else
+%     product_rate = sum(log(rates));
+% end
 
 % Product of rates
+
+
 product_rate = prod(rates); % Return the product of rates
 % product_rate = rates; % Return the product of rates
 end

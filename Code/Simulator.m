@@ -53,9 +53,6 @@ L = 12E3;                   % Number of bits per single frame
 %%% Compute the number of subcarriers, Nsc, as well as the total power used depending on the bandwidth and the number of spatial streams
 [MaxTxPower, Nsc] = TXpowerCalc(BW, Nss);      % tx power per spatial streams and number of subcarriers
 
-%%% Computing the needed overheads based on the simulation system, i.e., for DCF or CSR
-[preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads] = OverheadsCalc();
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 rng(1);            % For reproducibility
 
@@ -80,7 +77,8 @@ if strcmp(traffic_type, 'VR')
     EDCAaccessCategory = 'VI';
 end
 
-for i = 20
+for i = 1:100
+    %%% selected deaployment : 20
     %%% Deployment-dependent %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % %% Devices deployment (scenarios are randomly per default if "rng" above is commented )
 
@@ -97,6 +95,10 @@ for i = 20
     % [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
     channelMatrix = channelMatrix_save(:,:,i);
     RSSI_dB_vector_to_export = RSSI_dB_vector_to_export_save(:,:,i);
+    
+    %%% Computing the needed overheads based on the simulation system, i.e., for DCF or CSR
+    [preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads] = OverheadsCalc(EDCAaccessCategory);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     [per_STA_DCF_throughput_bianchi, ~] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
         Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads, EDCAaccessCategory);

@@ -242,8 +242,14 @@ classdef MAPCsim < handle
                 end
     
             end
-                  
-            Tc = 42E-6 + 16e-6 + 36E-6 + self.AIFS + 9e-6;      % collision duration -----> Tc = RTS + SIFS + CTS + AIFS + Te
+            
+            switch self.simulation_system
+                case 'DCF'
+                    Tc = 56E-6 + 16E-6 + 48E-6 + self.AIFS + 9E-6;      % collision duration -----> Tc = RTS + SIFS + CTS + AIFS + Te
+                otherwise
+                    Tc = 74.4E-6 + 16e-6 + 88E-6 + self.AIFS + 9e-6;      % collision duration -----> Tc = MAPC_ICF + SIFS + MAPC_ICR + AIFS + Te
+            end
+                    
             backofftime = slotnum*9e-6 + collision_counter*Tc;  % time due to backoff + collisions (if any)
 
 
@@ -677,7 +683,7 @@ classdef MAPCsim < handle
                 elapsed_time = self.TXtimeCalc(STA_rx, APs, sim_timeline, data_tx_time);
 
                 %%% Updating the simulation timeline
-                sim_timeline = sim_timeline + elapsed_time + 159E-06;   % 159us: TSIFS + TBACK + DIFS + Te;
+                sim_timeline = sim_timeline + elapsed_time + 16E-6 + 100E-6 + self.AIFS + 9E-6;   % 159us: TSIFS + TBACK + DIFS + Te;
 
             end
 

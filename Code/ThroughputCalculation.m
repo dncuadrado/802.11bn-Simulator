@@ -13,12 +13,12 @@ EDCAaccessCategory = 'VI';
 %%% Scenario-related
 AP_number = 4;          % Number of APs
 STA_number = 16;         % Number of STAs
-grid_value = 40;        % Length of the scenario: grid_value x grid_value 
+grid_value = 60;        % Length of the scenario: grid_value x grid_value 
 
 scenario_type = 'grid';           % scenario_type: 'grid' ---> APs are placed in the centre of each subarea and STAs around them
                                   %                'random' ---> both APs and STAs randomly deployed all over the entire area 
 
-sim = '20metros-16STAs';
+sim = '30metros-16STAs';
 
 walls = [0 grid_value grid_value/2 grid_value/2;            % Scenario design: each row contains the coordinates 
         grid_value/2 grid_value/2 0 grid_value];            % of each wall segment: [x1 x2 y1 y2]
@@ -34,9 +34,6 @@ L = 12E3;                   % Number of bits per single frame
 
 %%% Compute the number of subcarriers, Nsc, as well as the total power used depending on the bandwidth and the number of spatial streams
 [MaxTxPower, Nsc] = TXpowerCalc(BW, Nss);      % tx power per spatial streams and number of subcarriers 
-
-%%% Computing the needed overheads based on the simulation system, i.e., for DCF or CSR
-[~, ~, DCFoverheads, CSRoverheads] = OverheadsCalc();
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -62,7 +59,7 @@ load(horzcat('deployment datasets/',sim, '/RSSI_dB_vector_to_export_save.mat'));
 % SetParalellpool();
 
 updateWaitbar = waitbarParfor(iterations, "Calculation in progress...");
-parfor i = 1:iterations
+for i = 1:iterations
     % disp(i)
     %%% Deployment-dependent %%%%%%%%%%%
     %%% Devices deployment (scenarios are randomly per default if "rng" above is commented )
@@ -79,7 +76,11 @@ parfor i = 1:iterations
     % [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls);
     channelMatrix = channelMatrix_save(:,:,i);
     RSSI_dB_vector_to_export = RSSI_dB_vector_to_export_save(:,:,i);
-
+    
+    %%% Computing the needed overheads based on the simulation system, i.e., for DCF or CSR
+    [preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads] = OverheadsCalc(EDCAaccessCategory);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     % [CGs_STAs, TxPowerMatrix]  = CG_creationAnalytical_TPC(AP_number, STA_number, CSRoverheads, ...
     %         Pn_dBm, Nsc, Nss, association, channelMatrix, MaxTxPower, TXOP_duration);
 
