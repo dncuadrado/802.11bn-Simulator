@@ -38,8 +38,8 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%% Saving traffic dataset
-% 
+%%%%% Saving traffic dataset
+
 % %%% Saving STAs_arrivals_matrix to generate a dataset
 % if ~exist(TrafficfilePath, 'dir')
 %     mkdir(TrafficfilePath);
@@ -172,10 +172,6 @@ function STAs_arrivals_matrix = generate_VRtraffic(STA_number, traffic_load, L)
     frames_per_burst = ceil((bitrate * 1e6 * frame_interval) / L); % Number of consecutive frames per burst
     frame_spacing = 5e-6; % Spacing between frames in burst (5 microseconds)
 
-    % % Initialize figure for plotting
-    % figure; hold on;
-    % colors = lines(STA_number); % Colors for each STA plot
-
     for sta = 1:STA_number
         % Initialize for each STA
         interarrival_times = []; % Store inter-arrival times for each STA
@@ -195,29 +191,36 @@ function STAs_arrivals_matrix = generate_VRtraffic(STA_number, traffic_load, L)
 
         % Store inter-arrival times in the cell array
         STAs_arrivals_matrix{sta} = interarrival_times;
-
-        % % Plot the arrivals for the STA
-        % plot(interarrival_times, sta * ones(size(interarrival_times)), '.', 'Color', colors(sta, :), 'MarkerSize', 10);
     end
-
-    % To verify the bitrate and fps
-    % for nnn=1:STA_number
-    %     12E3*length(STAs_arrivals_matrix{nnn})/(1E6*STAs_arrivals_matrix{nnn}(end));
-    %     1/(STAs_arrivals_matrix{nnn}(frames_per_burst+1)-STAs_arrivals_matrix{nnn}(1));
-    % end
-
-
-    % % Plot configuration
-    % xlabel('Time (seconds)');
-    % ylabel('STA Number');
-    % title('VR Traffic Arrivals per STA');
-    % legend(arrayfun(@(x) ['STA ' num2str(x)], 1:STA_number, 'UniformOutput', false));
-    % grid on;
-    % hold off;
     % 
-    % % Display result
-    % disp('Traffic arrivals generated for each STA stored in STA_cell array:');
-    % disp(STAs_arrivals_matrix);
+    % colors = {
+    %     [1, 0, 0];    % Red
+    %     [0, 1, 0];    % Green
+    %     [0, 0, 1];    % Blue
+    %     [1, 1, 0];    % Yellow
+    %     [0, 1, 1];    % Cyan
+    %     [1, 0, 1];    % Magenta
+    %     [0.5, 0.5, 0.5]; % Gray
+    %     [1, 0.5, 0]   % Orange
+    %     };
+
+    % %%% To verify the bitrate and the fps
+    % vectorA = [];
+    % vectorB = [];
+    % figure('pos', [2000,2000,850,650])
+    % for j=1:STA_number
+    %     stem(STAs_arrivals_matrix{j}(1000:2000), ones(length(1000:2000),1), 'color', colors{j})
+    %     hold on
+    %     A = 12E3*length(STAs_arrivals_matrix{j})/(1E6*STAs_arrivals_matrix{j}(end));
+    %     B = 1/(STAs_arrivals_matrix{j}(frames_per_burst+1)-STAs_arrivals_matrix{j}(1));
+    %     vectorA = [vectorA,A];
+    %     vectorB = [vectorB,B];
+    % end
+    % disp(vectorA);
+    % disp(vectorB);
+
+
+
 
 
 end
