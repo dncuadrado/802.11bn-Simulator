@@ -8,7 +8,6 @@ The IEEE 802.11bn Simulator is designed to evaluate the downlink performance of 
 
 - [Overview](#overview)
 - [Features](#features)
-- [Repository Structure](#repository-structure)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -50,7 +49,182 @@ Performance metrics are evaluated over multiple iterations (each representing a 
 
 ---
 
-## Repository Structure
 
-Below is an example of the repository structure. Adjust the structure if your file organization differs.
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **MATLAB:** R2018b or later is recommended.
+- **MATLAB Toolboxes:** Ensure that any required toolboxes (e.g., Signal Processing Toolbox) are installed.
+- **Other Dependencies:** All functions (such as `TXpowerCalc`, `OverheadsCalc`, etc.) should be present in the repository.
+
+### Installation
+
+1. **Clone the Repository:**
+
+    ```bash
+    git clone https://github.com/yourusername/IEEE80211bnSimulator.git
+    ```
+
+2. **Set Up the MATLAB Path:**
+
+    Open MATLAB and add the repository folder (and its subdirectories) to your MATLAB path:
+
+    ```matlab
+    addpath(genpath('path_to_repository'));
+    ```
+
+---
+
+## Simulator Configuration
+
+### Input Parameters
+
+The simulator’s behavior is controlled via a set of input parameters defined at the beginning of the main simulation script (e.g., `main_simulator.m`). Below is an explanation of the key parameters:
+
+- **Traffic Parameters:**
+  - `traffic_type`: Defines the type of traffic. Options include `'Poisson'`, `'Bursty'`, or `'CBR'`.
+  - `traffic_load`: Specifies the load level for Best Effort (BE) traffic. For Poisson and Bursty, use `'low'`, `'medium'`, or `'high'`. For CBR, specify in the format `'x-y'` where `x` is the bitrate and `y` is the frames per second.
+  - `EDCAaccessCategory`: Sets the EDCA access category (e.g., `'BE'`).
+
+- **Scenario-Related Parameters:**
+  - `AP_number`: Number of Access Points.
+  - `STA_number`: Number of Stations.
+  - `grid_value`: Length of the simulation grid (the scenario is a `grid_value x grid_value` area).
+  - `scenario_type`: Scenario type (e.g., `'grid'` where APs are centrally placed in subareas and STAs surround them).
+  - `walls`: A matrix defining wall segments in the scenario. Each row represents a wall with coordinates `[x1 x2 y1 y2]`.
+
+- **System-Related Parameters:**
+  - `TXOP_duration`: Duration of a Transmission Opportunity (e.g., `5E-3` seconds).
+  - `Pn_dBm`: Noise power in dBm.
+  - `Cca`: Clear Channel Assessment threshold in dBm.
+  - `BW`: Bandwidth (in MHz; typical values are 20, 40, 80, or 160).
+  - `Nss`: Number of spatial streams.
+  - `L`: Number of bits per frame.
+
+- **Overhead and Power Calculations:**
+  - The simulator calculates the number of subcarriers (`Nsc`) and the maximum TX power using the function `TXpowerCalc`.
+  - Overheads for EDCA and CSR are computed using `OverheadsCalc`.
+
+- **Iteration and Traffic Generation:**
+  - `iterations`: Sets how many independent simulation runs (channel realizations) will be executed.
+  - Traffic for each STA is generated using the `TrafficGenerator` function and validated to ensure the simulation duration (`timestamp_to_stop`) exceeds the final packet arrival time.
+
+### Simulation Execution Flow
+
+Each simulation iteration involves the following steps:
+
+1. **Device Deployment:**
+   - APs and STAs are randomly deployed using `AP_STA_coordinates`.
+   - The association between APs and STAs is determined using `AP_STA_Association`.
+   - The channel matrix and RSSI values are computed using `GetChannelMatrix`.
+
+2. **Throughput and Overhead Calculations:**
+   - The throughput for each STA under EDCA is calculated via `Throughput_EDCA_bianchi`.
+   - Channel Groups (CGs) for STAs and TX power allocation are computed using `CGcreation`.
+
+3. **Traffic Generation:**
+   - Traffic arrivals are generated for each STA based on the specified traffic type and load.
+   - The simulation ensures that the traffic generation duration (`timestamp_to_stop`) is appropriate.
+
+4. **Running Simulations:**
+   - **EDCA Simulation:** An instance of `MAPCsim` is configured and run with the simulation system set to `'EDCA'`.
+   - **CSR Simulations:** Additional instances of `MAPCsim` are configured for CSR with different schedulers:
+     - **MNP:** CSR with the Minimum Number of Packets scheduler.
+     - **OP:** CSR with the Opportunistic scheduler.
+     - **TAT:** CSR with the Time Aware Throughput scheduler (with configurable `alpha_` and `beta_` parameters).
+
+5. **Plot Generation:**
+   - After simulation, various plots are generated to visualize performance metrics such as:
+     - Percentile values (e.g., 50th and 99th percentiles)
+     - Delay distributions (CDF for total delay and per STA)
+     - TXOP window numbers
+     - AP collision probabilities
+     - STA selection counters
+
+   These plots are handled by an instance of the `MyPlots` class.
+
+---
+
+## Running the Simulator
+
+1. **Open MATLAB:**
+   Navigate to the cloned repository directory.
+
+2. **Run the Main Simulation Script:**
+   Execute the main simulation file (e.g., `main_simulator.m`):
+
+    ```matlab
+    main_simulator
+    ```
+
+   *(Make sure the script name matches the file in your repository.)*
+
+3. **Observe the Output:**
+   The simulator will run for the defined number of iterations, and the specified plots will be generated for each iteration. You can modify the plotting commands in the script (by commenting or uncommenting) to display your desired outputs.
+
+---
+
+## Customization
+
+- **Modifying Simulation Parameters:**
+  Edit the top section of the main simulation script to adjust traffic type, load, number of APs/STAs, grid size, TXOP duration, bandwidth, etc.
+
+- **Traffic Generation:**
+  Change parameters in `TrafficGenerator` to simulate different traffic patterns or loads.
+
+- **Selecting Different Scheduling Algorithms:**
+  Set the `simulation_system` and `scheduler` fields of the `MAPCsim` object to run different MAC protocols:
+  - For EDCA: `simEDCA.simulation_system = 'EDCA';`
+  - For CSR:
+    - Minimum Number of Packets (MNP): `simMNP.scheduler = 'MNP';`
+    - Opportunistic (OP): `simOP.scheduler = 'OP';`
+    - Time Aware Throughput (TAT): `simTAT.scheduler = 'TAT';` (with parameters `alpha_` and `beta_`)
+
+- **Randomness Control:**
+  The simulator uses `rng(1)` for reproducibility. To generate different deployments on each run, comment out or modify these `rng(1)` calls.
+
+---
+
+## Troubleshooting
+
+- **Simulation Duration Error:**
+  If you see an error stating that `timestamp_to_stop` is less than the arrival time of the last packet, consider increasing `timestamp_to_stop` or adjusting traffic generation settings.
+
+- **Missing Functions:**
+  Ensure that all required MATLAB function files (e.g., `TXpowerCalc.m`, `OverheadsCalc.m`, etc.) are in your MATLAB path.
+
+- **MATLAB Path Issues:**
+  If MATLAB cannot find certain functions, double-check that you have added the repository (and all its subdirectories) to the MATLAB path using:
+
+    ```matlab
+    addpath(genpath('path_to_repository'));
+    ```
+
+---
+
+## Contributing
+
+Contributions to enhance the simulator, fix bugs, or add new features are very welcome! Please fork the repository and create a pull request with your changes. For major modifications, open an issue first to discuss what you would like to change.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Contact
+
+For questions or issues, please open an issue on GitHub or contact:
+
+**Your Name**  
+Email: [your.email@example.com](mailto:your.email@example.com)
+
+---
+
+Happy simulating!
 
