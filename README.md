@@ -1,81 +1,56 @@
-# IEEE 802.11bn simulator
+# IEEE 802.11bn Simulator
 
-This repository contains a simulator for Coordinated Spatial Reuse on the context of IEEE 802.11bn wireless communication systems. Besides, it is possible to obtain results for the traditional IEEE 802.11 access mechanism, i.e., Distributed Coordination Function (DCF). In general, this simulator is designed to model and analyze the performance of IEEE 802.11-based networks.
+The IEEE 802.11bn Simulator is designed to evaluate the downlink performance of a Multi-AP Coordination Network (MAPC). This repository implements a flexible simulation framework capable of modeling different traffic types, network configurations, and MAC protocols (including EDCA and various CSR-based schedulers).
 
-The following instructions are referred to the main file "Simulator.m"
+---
 
-## Input Parameters
+## Table of Contents
 
-The simulation system is configured using the `simulation_system` variable. It can be set to either 'DCF' or 'CSR' based on the desired system simulation.
+- [Overview](#overview)
+- [Features](#features)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Simulator Configuration](#simulator-configuration)
+  - [Input Parameters](#input-parameters)
+  - [Simulation Execution Flow](#simulation-execution-flow)
+- [Running the Simulator](#running-the-simulator)
+- [Customization](#customization)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-### Scenario-related
+---
 
-- `AP_number`: Number of Access Points (APs)
-- `STA_number`: Number of Stations (STAs)
-- `grid_value`: Length of the scenario (grid_value x grid_value)
-- `scenario_type`: 'grid', APs are placed in the centre of each subarea or 'random', all devices randomly deployed
-- `walls`: Scenario design with wall segments defined by coordinates (x1, x2, y1, y2)
+## Overview
 
-### System-related
+The simulator focuses on evaluating the downlink performance in a network with multiple Access Points (APs) and Stations (STAs). It supports:
 
-- `TXOP_duration`: Duration of the TXOP (Transmission Opportunity)
-- `Pn_dBm`: Noise level in dBm
-- `Cca`: Clear channel assessment in dBm (default Cca = -82 dBm)
-- `Nsc`: Number of data subcarriers
-- `Nss`: Number of spatial streams
-- `L`: Number of bits per single frame
+- **Traffic Modeling:** Choose among Poisson, Bursty, and Constant Bit Rate (CBR) traffic.
+- **Scenario Configuration:** Define AP/STA numbers, grid dimensions, and even incorporate walls in the scenario.
+- **System Parameters:** Configure TXOP durations, noise figures, bandwidth, and more.
+- **MAC Protocols:** Compare the performance of traditional EDCA with different CSR (Centralized Scheduling Resource allocation) algorithms including:
+  - CSR with Minimum Number of Packets (MNP)
+  - CSR with Opportunistic Scheduling (OP)
+  - CSR with Time Aware Throughput (TAT)
 
-### CSR-related
+Performance metrics are evaluated over multiple iterations (each representing a unique channel realization), and various plots are generated to illustrate performance aspects such as throughput, delay distributions, and collision probabilities.
 
-- `gamma_value`: Gamma parameter for creating CSR groups
-- `priority`: Priority for CSR scheduling (1: number of packets, 2: oldest packets)
+---
 
-### Traffic-related
+## Features
 
-- `traffic_load`: Traffic load in bits per second (bps)
-- `poisson_rate`: Packet generation rate per second
-- `event_number`: Number of packets transmitted during the simulation
+- **Flexible Traffic Generation:** Supports different traffic types (`'Poisson'`, `'Bursty'`, `'CBR'`) and load configurations.
+- **Detailed Scenario Modeling:** Place APs and STAs in grid-based scenarios with custom wall definitions.
+- **Overhead & Power Calculations:** Uses dedicated functions (`TXpowerCalc` and `OverheadsCalc`) to compute TX power, subcarrier numbers, and overheads.
+- **Multiple Simulation Systems:** Simulate EDCA and CSR systems (with different schedulers) in parallel.
+- **Comprehensive Plotting:** Generate percentile, CDF, and other performance plots using the `MyPlots` class.
 
-## Running the Simulator
+---
 
-1. Set the `simulation_system` variable to either 'DCF' or 'CSR'.
-2. Modify other input parameters as needed.
-3. Run the simulator.
+## Repository Structure
 
-## Output Analysis
+Below is an example of the repository structure. Adjust the structure if your file organization differs.
 
-The simulator outputs various performance metrics, and the analysis is performed at the end of the simulation.
-Plots can be activated or deactivated at the end of the file "Simulator.m"
-
-### Validation
-The simulator is validated against Bianchi's model. Make sure that `traffic_load` is high enough to saturate the network and `simulation_system` = 'DCF'. Besides, the higher the `event_number` parameter the higher the accuracy of the simulation result when compared with analytical (bianchi's)
-
-- `traffic.PlotValidation`: Simulated Throughput and Collision probability against bianchi's
-
-
-### Plots
-
-- `PlotCDFdelayTotal`: Cumulative Distribution Function (CDF) of total delay (all transmitted packets by all STAs).
-- `PlotCDFdelayPerSTA`: CDF of delay per STA.
-- `PlotWorstCaseDelayPerSTA`: Worst-case delay per STA.
-- `PlotPrctileDelayPerSTA(99)`: Percentile delay per STA. Indicate inside the parenthesis the percentile to compute 
-- `PlotTXOPwinNumber`: Number of times each AP wins the contention
-- `PlotAPcollisionProb`: AP collision probability.
-- `PlotSTAselectionCounter`: Counter for STA selection.
-
-## License
-
-This simulator is provided under the [CC0 1.0 Universal Public Domain Dedication](LICENSE).
-
-### CC0 1.0 Universal
-
-- **Waiver**: Affirmer (the person associating CC0 with a Work) fully and irrevocably waives all Copyright and Related Rights.
-- **Purpose**: The purpose is to contribute to a commons of creative, cultural, and scientific works, allowing the public to build upon, modify, and reuse the Work without fear of infringement claims.
-- **Public License Fallback**: In case any part of the Waiver is legally invalid, Affirmer grants a royalty-free, non-exclusive license to exercise Copyright and Related Rights.
-- **Limitations and Disclaimers**: No trademark or patent rights held by Affirmer are affected. Affirmer provides the Work as-is without warranties, and disclaims responsibility for clearing rights or obtaining consents.
-
-**Read the full text of the CC0 1.0 Universal Public Domain Dedication**: [CC0 1.0 Legal Code](https://creativecommons.org/publicdomain/zero/1.0/legalcode)
-
-CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE LEGAL SERVICES. DISTRIBUTION OF THIS DOCUMENT DOES NOT CREATE AN ATTORNEY-CLIENT RELATIONSHIP. CREATIVE COMMONS PROVIDES THIS INFORMATION ON AN "AS-IS" BASIS. CREATIVE COMMONS MAKES NO WARRANTIES REGARDING THE USE OF THIS DOCUMENT OR THE INFORMATION OR WORKS PROVIDED HEREUNDER, AND DISCLAIMS LIABILITY FOR DAMAGES RESULTING FROM THE USE OF THIS DOCUMENT OR THE INFORMATION OR WORKS PROVIDED HEREUNDER.
-## Contribute
-If you want to contribute, please contact david.nunez@upf.edu or boris.bellalta@upf.edu
