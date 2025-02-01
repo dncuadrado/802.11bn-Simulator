@@ -1,6 +1,6 @@
 # IEEE 802.11bn Simulator
 
-The IEEE 802.11bn Simulator is designed to evaluate the downlink performance of a Multi-AP Coordination Network (MAPC). This repository implements a flexible simulation framework capable of modeling different traffic types, network configurations, and MAC protocols (including EDCA and various CSR-based schedulers).
+The IEEE 802.11bn Simulator is designed to evaluate the downlink performance of a Multi-AP Coordination (MAPC) Wi-Fi Network . This repository implements a flexible simulation framework capable of modeling different traffic types, network configurations, and MAC protocols (including EDCA and various CSR-based schedulers).
 
 ---
 
