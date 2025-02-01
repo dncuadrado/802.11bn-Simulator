@@ -4,29 +4,18 @@ classdef MAPCsim < handle
     properties ( Access = 'private' )
         %%% System-related
         TXOP_duration                           % Duration of a TXOP
-        Pn_dBm                                  % Noise in dbm
-        noise_power
-        Cca                                     % Clear channel assessment in dBm (default Cca = -82 dBm)
-        BW                                      % Bandwidth e.g., 20, 40, 80, 160 [in MHz]  
+        noise_power                             % noise power (linear)
         Nss                                     % Number of spatial streams
         Nsc                                     % Number of subcarriers
-        tx_power_ss
             
         %%% Scenario-related
         association                             % Cell array with the list of STAs associated to APs
-        channelMatrix
-        RSSI_dB_vector_to_export
+        channelMatrix                           % Matrix that contains the channel coefficients
         MaxTxPower                              % Max TX power per spatial stream [dBm]
 
         %%% Traffic-related
-        event_number = 150000;                   % number of events to explore
         APs_packet_indicator                    % Indicator of AP availability of packets to transmit (used mainly in the backoff process)
         firstPosPosition                        % controls the position  of the first available packet to transmit to each STA 
-        lastPosTimestamp                        % controls the timestamp of the last available packet to transmit to each STA (sensitive to sim timeline) 
-        lastPosPosition                         % controls the position  of the last available packet to transmit to each STA (sensitive to sim timeline)
-        rrobin_DCF_group_selector               % indicates the STA to transmit
-        rrobin_CSR_group_selector               % indicates the group to transmit
-        tempDelay                               % track the temporal delay 
 
 
         %%% Backoff-related
@@ -38,16 +27,10 @@ classdef MAPCsim < handle
 
         
         %%% TXOP-related
-        preTX_overheadsDCF                      % DCF overheads before transmission 
+        preTX_overheadsEDCA                     % EDCA overheads before transmission 
         preTX_overheadsCSR                      % CSR overheads before transmission
-        DCFoverheads                            % Entire DCF overheads
+        EDCAoverheads                           % Entire EDCA overheads
         CSRoverheads                            % Entire CSR overheads    
-
-        %%% STA selection counter
-
-
-        %%% For results
-        throughput_sim
         
     end
 
@@ -64,7 +47,6 @@ classdef MAPCsim < handle
         delivery_timestamp_record               % cell array to store for each STA the timestamp at which every packet is transmitted 
         delay_per_STA                           % stores the delay per STA
         delayvector                             % vector that contains the delay of all STAs
-        traffic_type                            % Poisson, Bursty
         timestamp_to_stop                       % simulation duration [in seconds]
 
 
@@ -74,34 +56,27 @@ classdef MAPCsim < handle
         APcollision_prob                        % stores the collision probability per AP
 
         %%% MAPC related
-        simulation_system
-        validationFlag
+        simulation_system = 'EDCA'
         CGs_STAs = [];                          % Matrix that stores the C-SR groups
         TxPowerMatrix = [];                     % Matrix with TXPower values
         scheduler = 'MNP'                       % scheduling: - Number of packets: 'MNP' 
                                                 %             - Oldest packet: 'OP'
                                                 %             - Random selection: 'Random'
                                                 %             - TAT selection: 'TAT'
-                                                %             - Hybrid selection: 'Hybrid'  
 
         alpha_ = 1/2;                           % For TAT scheduler- default 1/2
         beta_ = 1/2;                            % For TAT scheduler- default 1/2
-
-        hybridThreshold = 80;                   % hybrid threshold to change the policy between MNP and OP
     end
     
     methods
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function self = MAPCsim(n_APs, n_STAs, association, MaxTxPower, channelMatrix, RSSI_dB_vector_to_export, traffic_type, timestamp_to_stop, ...
-                simulation_system, validationFlag, TXOP_duration, Pn_dBm, Cca, BW, Nss, Nsc, preTX_overheadsDCF, preTX_overheadsCSR, DCFoverheads, CSRoverheads) % initialize object (constructor)
+        function self = MAPCsim(n_APs, n_STAs, association, MaxTxPower, channelMatrix, timestamp_to_stop, ...
+                TXOP_duration, Pn_dBm, Nss, Nsc, preTX_overheadsEDCA, preTX_overheadsCSR, EDCAoverheads, CSRoverheads) % initialize object (constructor)
                 
             %%% Initializing properties
             %%% System-related
             self.TXOP_duration = TXOP_duration;  % Duration of a TXOP
-            self.Pn_dBm = Pn_dBm;               % Noise in dbm
             self.noise_power = 10^(Pn_dBm/10);
-            self.Cca = Cca;                  % Clear channel assessment in dBm (default Cca = -82 dBm)
-            self.BW = BW;                    % Bandwidth e.g., 20, 40, 80, 160 [in MHz]  
             self.Nss = Nss;                    % Number of spatial streams
             self.Nsc = Nsc;
         
@@ -110,11 +85,8 @@ classdef MAPCsim < handle
             self.n_APs = n_APs;                 
             self.association = association; 
             self.channelMatrix = channelMatrix;
-            self.RSSI_dB_vector_to_export = RSSI_dB_vector_to_export;
             self.MaxTxPower = 10^(MaxTxPower/10); 
             
-            
-            self.traffic_type = traffic_type;
             self.timestamp_to_stop = timestamp_to_stop;
 
             self.STA_queue_timeline = cell(self.n_STAs,1); 
@@ -123,30 +95,20 @@ classdef MAPCsim < handle
 
             self.firstPosTimestamp = zeros(n_STAs,1);
             self.firstPosPosition = ones(n_STAs,1);
-            self.lastPosTimestamp = zeros(n_STAs,1);
-            self.lastPosPosition = zeros(n_STAs,1);
-             
-            
-            self.simulation_system = simulation_system;
-            self.validationFlag = validationFlag;
-            
-            
+
             self.APs_packet_indicator = zeros(n_APs,1);
             self.backoffStage = zeros(n_APs,1);
 
             self.TXOPwinNumber = zeros(n_APs,1);
             self.TXOPcollision = zeros(n_APs,1);
             
-            self.preTX_overheadsDCF = preTX_overheadsDCF;                  
+            self.preTX_overheadsEDCA = preTX_overheadsEDCA;                  
             self.preTX_overheadsCSR = preTX_overheadsCSR;                     
-            self.DCFoverheads = DCFoverheads;                            
+            self.EDCAoverheads = EDCAoverheads;                            
             self.CSRoverheads = CSRoverheads;                            
 
             self.STAselectionCounter = zeros(n_STAs,1);
-            
-            self.throughput_sim = zeros(n_STAs,1);
             self.delay_per_STA = cell(self.n_STAs,1);
-            self.tempDelay = cell(self.n_STAs,1);
             self.delayvector = [];
             self.APcollision_prob = 0;
             
@@ -187,7 +149,6 @@ classdef MAPCsim < handle
                 %%% Update the Position and the Timestamp of the first available packet for each STA
                 self.firstPosPosition(STA_rx) = find(self.STA_queue_state{STA_rx}(:),1,'first');
                 self.firstPosTimestamp(STA_rx) = self.STA_queue_timeline{STA_rx}(self.firstPosPosition(STA_rx));  % timestamp
-                self.tempDelay{STA_rx} = self.delivery_timestamp_record{STA_rx}(1:rx_vector_pos(end)) - self.STA_queue_timeline{STA_rx}(1:rx_vector_pos(end));
             end
             %%% Updating the counter of STA selection
             self.STAselectionCounter(STA_rx) = self.STAselectionCounter(STA_rx) + 1;
@@ -244,7 +205,7 @@ classdef MAPCsim < handle
             end
             
             switch self.simulation_system
-                case 'DCF'
+                case 'EDCA'
                     Tc = 56E-6 + 16E-6 + 48E-6 + self.AIFS + 9E-6;      % collision duration -----> Tc = RTS + SIFS + CTS + AIFS + Te
                 otherwise
                     Tc = 74.4E-6 + 16e-6 + 88E-6 + self.AIFS + 9e-6;      % collision duration -----> Tc = MAPC_ICF + SIFS + MAPC_ICR + AIFS + Te
@@ -269,37 +230,17 @@ classdef MAPCsim < handle
             %%% Scheduling %%%%%%%
             
             switch self.simulation_system
-                case 'DCF'
+                case 'EDCA'
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
-                    %%%%%%%      DCF     %%%%%%%%%%
-
-                    switch self.validationFlag
-                        case 'yes'
-                            %%% Round Robin scheduling. ONLY to compare with Bianchi's model. 
-                            %%% Initializing round robin counter
-                            if sum(self.firstPosPosition)==self.n_STAs
-                                for k = 1:self.n_APs
-                                    self.rrobin_DCF_group_selector{k}(:) = [1;zeros(length(self.association{k})-1,1)];
-                                end
-                            end
-                            %%% Selecting the corresponding STA depending on the state of self.rrobin_DCF_group_selector{TXOPwinner}
-                            STA_rx = self.association{TXOPwinner}(self.rrobin_DCF_group_selector{TXOPwinner}==1);
-                            %%% Updating the round robin counter
-                            self.rrobin_DCF_group_selector{TXOPwinner} = circshift(self.rrobin_DCF_group_selector{TXOPwinner},1);
-
-                            % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                        otherwise
-                            % %%% STA selection. Looks for the STA with the oldest packet in the queue of the TXOP winner
-                            [~, STAidx] = min(self.firstPosTimestamp([self.association{TXOPwinner}]));
-                            STA_rx = self.association{TXOPwinner}(STAidx);
-                    end
+                    %%%%%%%      EDCA     %%%%%%%%%%
+                    % %%% STA selection. Looks for the STA with the oldest packet in the queue of the TXOP winner
+                    [~, STAidx] = min(self.firstPosTimestamp([self.association{TXOPwinner}]));
+                    STA_rx = self.association{TXOPwinner}(STAidx);
 
                     %%% AP
                     APs = TXOPwinner;
                     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 otherwise
-                    %%% Scheduling the STAs based on:
-                    % if self.validationFlag = 'yes', it uses a round robin scheduler, i.e., same tx probability for all devices
 
                     %%% Looking for STAs with packets available
                     CGs = self.CGs_STAs;
@@ -319,11 +260,6 @@ classdef MAPCsim < handle
 
                         % initial tx_vector_pos (without analyzing which one is greater between the number of agg frames and the available packets)
                         tx_vector_pos = packet_range(self.STA_queue_state{j}(packet_range) == 1);
-                        
-
-                        %%% Updating last position
-                        self.lastPosPosition(j) = tx_vector_pos(end);
-                        self.lastPosTimestamp(j) = self.STA_queue_timeline{j}(self.lastPosPosition(j));
 
                         %%% Computing the number of packet available per STA
                         per_STA_ScorePackets(j) = length(tx_vector_pos);
@@ -346,7 +282,7 @@ classdef MAPCsim < handle
                         ScorePackets(i) = sum(per_STA_ScorePackets(u));
                         ScoreTimeOldest(i) = min(self.firstPosTimestamp(u));                            % finds the oldest packet per group
                         
-                        if strcmp(self.scheduler,'TAT') || strcmp(self.scheduler,'Hybrid')
+                        if strcmp(self.scheduler,'TAT')
                             ei_min = min(self.firstPosTimestamp(u));
                             ei_max = max(self.firstPosTimestamp(u));
                             t = sim_timeline;
@@ -362,65 +298,25 @@ classdef MAPCsim < handle
 
                     end
                     
-                    switch self.validationFlag
-                        case 'yes'
-                            if self.rrobin_CSR_group_selector==0 % initializing the round robin CSR selector
-                                self.rrobin_CSR_group_selector = zeros(size(self.CGs_STAs,1),1);
-                                self.rrobin_CSR_group_selector(1,:) = 1;
+                    switch self.scheduler
+                        case 'MNP' % priority is the group with the highest number of packets
+                            [maxScore, idx_score] = max(ScorePackets);          % find the group with the highest number of packets
+                            equalScoreIdx = find(ScorePackets==maxScore);       % looks for more than one group with the same number of packets among the winners
+                            if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
+                                [~, idx_score_temp] = min(ScoreTimeOldest(equalScoreIdx));
+                                idx_score = equalScoreIdx(idx_score_temp);         % select the group with the oldest packet among the winners
                             end
-
-
-                            %%% Bianchi's paper model
-                            % STA = self.association{TXOPwinner}(randi([1 length(self.association{TXOPwinner}(:))],1,1)); %% The TXOP winner randomly selects one of its STAs 
-                            % [idx_score, ~] = find(self.CGs_STAs == STA);   % Find the group where the selected STA appears
-
-                            %%% Round Robin
-                            idx_score = find(self.rrobin_CSR_group_selector==1);
-                            self.rrobin_CSR_group_selector = circshift(self.rrobin_CSR_group_selector,1);
-                        otherwise
-                            switch self.scheduler
-                                case 'MNP' % priority is the group with the highest number of packets
-                                    [maxScore, idx_score] = max(ScorePackets);          % find the group with the highest number of packets
-                                    equalScoreIdx = find(ScorePackets==maxScore);       % looks for more than one group with the same number of packets among the winners
-                                    if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
-                                        [~, idx_score_temp] = min(ScoreTimeOldest(equalScoreIdx));
-                                        idx_score = equalScoreIdx(idx_score_temp);         % select the group with the oldest packet among the winners
-                                    end
-                                case 'OP' % priority is the group with the oldest packet
-                                    [minOldestScore, idx_score] = min(ScoreTimeOldest);
-                                    equalScoreIdx = find(ScoreTimeOldest==minOldestScore);       % looks for more than one group with the same timestamp among the winners (probably due to the same STA in these groups)
-                                    if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
-                                        [~, idx_score_temp] = max(ScorePackets(equalScoreIdx));
-                                        idx_score = equalScoreIdx(idx_score_temp);         % select the group with the highest number of packets among the winners
-                                    end
-                                case 'Random' % random selection
-                                    idx_score = randi([1 length(uni)],1,1);
-                                case 'TAT' % CSR TAT 
-                                    [~, idx_score] = max(ScoreTAT);
-                                case 'Hybrid' % CSR hybrid
-                                    if ~isempty([self.tempDelay{:}])
-                                        prcentile = prctile([self.tempDelay{:}],self.hybridThreshold);
-                                        % prcentile = 5E-3;
-                                    else
-                                        prcentile = 5E-3;
-                                    end
-
-                                    if delta_nt > prcentile % OP
-                                        [minOldestScore, idx_score] = min(ScoreTimeOldest);
-                                        equalScoreIdx = find(ScoreTimeOldest==minOldestScore);       % looks for more than one group with the same timestamp among the winners (probably due to the same STA in these groups)
-                                        if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
-                                            [~, idx_score_temp] = max(ScorePackets(equalScoreIdx));
-                                            idx_score = equalScoreIdx(idx_score_temp);         % select the group with the highest number of packets among the winners
-                                        end
-                                    else    % MNP
-                                        [maxScore, idx_score] = max(ScorePackets);          % find the group with the highest number of packets
-                                        equalScoreIdx = find(ScorePackets==maxScore);       % looks for more than one group with the same number of packets among the winners
-                                        if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
-                                            [~, idx_score_temp] = min(ScoreTimeOldest(equalScoreIdx));
-                                            idx_score = equalScoreIdx(idx_score_temp);         % select the group with the oldest packet among the winners
-                                        end
-                                    end
+                        case 'OP' % priority is the group with the oldest packet
+                            [minOldestScore, idx_score] = min(ScoreTimeOldest);
+                            equalScoreIdx = find(ScoreTimeOldest==minOldestScore);       % looks for more than one group with the same timestamp among the winners (probably due to the same STA in these groups)
+                            if length(equalScoreIdx)~=1                         % if true (i.e., a tie, more than one winners)
+                                [~, idx_score_temp] = max(ScorePackets(equalScoreIdx));
+                                idx_score = equalScoreIdx(idx_score_temp);         % select the group with the highest number of packets among the winners
                             end
+                        case 'Random' % random selection
+                            idx_score = randi([1 length(uni)],1,1);
+                        case 'TAT' % CSR TAT 
+                            [~, idx_score] = max(ScoreTAT);
                     end
 
                     %%% Getting the resulting STAs for this TXOP
@@ -538,25 +434,14 @@ classdef MAPCsim < handle
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
                 %%% Real time spent to transmit data
-                switch self.validationFlag 
-                    case 'yes' 
-                        received_packets(k,1) = tx_Packets(k,1);
-                        temp_elapsed_time(k,1) = data_tx_time;
-                    otherwise
-                        received_packets(k,1) = binornd(tx_Packets(k,1),(1-Pe)); % binomial distribution where max_numPackets is the number of trials 
-                                                                                   % and success probability = 1 - PER ---> PER = 1E-2
-                        lost_packets_pos = randperm(length(tx_vector_pos), tx_Packets(k,1) - received_packets(k,1));
-                        rx_vector_pos = tx_vector_pos;
-                        
-                        % %%% Re-transmissions verbose
-                        % if (tx_Packets(k,1) - received_packets(k,1)) ~= 0
-                        %     fprintf('Re-transmission for STA%d \n',STA_rx(k));
-                        %     fprintf('Packet ID: %d \n',rx_vector_pos(lost_packets_pos));  
-                        % end
+                received_packets(k,1) = binornd(tx_Packets(k,1),(1-Pe)); % binomial distribution where max_numPackets is the number of trials 
+                                                                           % and success probability = 1 - PER ---> PER = 1E-2
+                lost_packets_pos = randperm(length(tx_vector_pos), tx_Packets(k,1) - received_packets(k,1));
+                rx_vector_pos = tx_vector_pos;
 
-                        rx_vector_pos(lost_packets_pos) = [];
-                        temp_elapsed_time(k,1)  = elapsed_time_tx(self.Nsc, N_bps(k,1), Rc(k,1), self.Nss, tx_Packets(k,1)); % tx packets could be different to rx packets (some losses) 
-                end
+                rx_vector_pos(lost_packets_pos) = [];
+                temp_elapsed_time(k,1)  = elapsed_time_tx(self.Nsc, N_bps(k,1), Rc(k,1), self.Nss, tx_Packets(k,1)); % tx packets could be different to rx packets (some losses) 
+
                 
                 %%% Updating the position of the first valid packet for each STA and updating delivery_timestamp_record
                 self.UpdateSTA(STA_rx(k),rx_vector_pos, sim_timeline, temp_elapsed_time(k,1));
@@ -593,7 +478,6 @@ classdef MAPCsim < handle
                 end
 
                 self.delayvector = [self.delayvector;self.delay_per_STA{j}']; 
-                % self.throughput_sim (j) = 12E3*(last_tx_packet - length(no_tx_packets))/(1E6*(self.delivery_timestamp_record{j}(last_tx_packet - length(no_tx_packets))));
             end
 
             
@@ -664,15 +548,15 @@ classdef MAPCsim < handle
                 %%% Moving forward the simulation timeline, i.e., after backoff and collisions (if any)
                 sim_timeline = sim_timeline + backofftime;
 
-                %%% Scheduling. STAs and APs selection for the ongoing TXOP depending on the simulation_system employed, i.e., DCF or CSR
+                %%% Scheduling. STAs and APs selection for the ongoing TXOP depending on the simulation_system employed, i.e., EDCA or CSR
                 [STA_rx, APs] = self.schedulingV1(sim_timeline, TXOPwinner);
                 
 
                 %%% Moving forward the simulation timeline, after pre tx overheads that depend on whether the TXOP will be single or
                 %%% coordinated
-                if strcmp(self.simulation_system,'DCF') % for DCF
-                    sim_timeline = sim_timeline + self.preTX_overheadsDCF; % moving the timeline up to: sim_timeline + RTS + SIFS + CTS + SIFS + time_preamble_data
-                    data_tx_time = self.TXOP_duration - self.DCFoverheads;
+                if strcmp(self.simulation_system,'EDCA') % for EDCA
+                    sim_timeline = sim_timeline + self.preTX_overheadsEDCA; % moving the timeline up to: sim_timeline + RTS + SIFS + CTS + SIFS + time_preamble_data
+                    data_tx_time = self.TXOP_duration - self.EDCAoverheads;
                 else % for ST and CSR
                     sim_timeline = sim_timeline + self.preTX_overheadsCSR; % moving the timeline up to: sim_timeline + TRTS + TSIFS + TCTS + TSIFS + T_MAPC_TXOP + TSIFS + time_preamble_data;
                     data_tx_time = self.TXOP_duration - self.CSRoverheads;

@@ -12,7 +12,4 @@ switch scenario_type
         end
 end
 
-
-
-
 end

@@ -1,17 +1,16 @@
 function [AP_matrix, STA_matrix] = AP_STA_coordinates(AP_number, STA_number, scenario_type, grid_value)
-
     %%% Computes the matrices with the coordinates of the devices (AP_matrix and STA_matrix)
-    STAs_per_AP = STA_number/AP_number;
-    
 
-      
+
+    % Average number of STAs associated to each AP
+    STAs_per_AP = STA_number/AP_number;
+     
     %%% Max Distance between AP and STA (used only in 'grid')
     AP_STA_max_distance = 10;  % in meters
     if AP_STA_max_distance > grid_value/4      % Forcing the STAs to be in the corresponding subarea 
         AP_STA_max_distance = grid_value/4;
     end
 
-    
 
     %%% Stop the while loop
     stopwhile = 0;
@@ -43,17 +42,6 @@ function [AP_matrix, STA_matrix] = AP_STA_coordinates(AP_number, STA_number, sce
                         STA_matrix((j-1)*STAs_per_AP+kk,1) = AP_matrix(j,1) + g.*cos(t);
                         STA_matrix((j-1)*STAs_per_AP+kk,2) = AP_matrix(j,2) + g.*sin(t);     
                     end
-                end
-
-            case 'random'
-                for j = 1:AP_number
-                    %%%%%%%%%   APs and STAs are randomly placed all over the area
-                    %%% APs randomly placed all over the area     
-                    AP_matrix(j,1) = random('Uniform', 0, grid_value);
-                    AP_matrix(j,2) = random('Uniform', 0, grid_value);
-        
-                    %%%%% STAs randomly placed all over the area
-                    STA_matrix = grid_value*rand(2, STAs_per_AP*AP_number)';   
                 end
         end
 

@@ -1,8 +1,7 @@
-function STAs_arrivals_matrix = TrafficGenerator(STA_number,validationFlag, ...
-                                traffic_type, traffic_load, L, per_STA_DCF_throughput_bianchi, TrafficfileName, TrafficfilePath)
+function STAs_arrivals_matrix = TrafficGenerator(STA_number, ...
+                                traffic_type, traffic_load, L, per_STA_DCF_throughput_bianchi)
 %%% Generates a cell array with the time of arrivals for each STA
-
-event_number = 150000;                               % number of packets tx along the simulation
+event_number = 50000;                               % number of packets tx along the simulation
 
 switch traffic_load
     case 'low'              % For BE traffic
@@ -15,22 +14,14 @@ switch traffic_load
         C = 0.9;
         trafficGeneration_rate = C*min(per_STA_DCF_throughput_bianchi)*1E6/L; % in packets/s
 end
-%
-    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Full-buffer
-% traffic_load = 2000E6;                                  % bps
-% trafficGeneration_rate = traffic_load/L;                % packets/s
-% event_number = 20000000;                               % number of packets tx along the simulation
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 switch traffic_type
-    case 'Poisson'      % Poisson distribution
-        STAs_arrivals_matrix = poisson_fixed_events (STA_number, validationFlag, event_number, trafficGeneration_rate);
+    case 'Poisson'     
+        STAs_arrivals_matrix = poisson_fixed_events (STA_number, event_number, trafficGeneration_rate);
     case 'Bursty'
         STAs_arrivals_matrix = generate_burstTraffic(STA_number, event_number, trafficGeneration_rate);
-    case 'VR'
-        STAs_arrivals_matrix = generate_VRtraffic(STA_number, traffic_load, L);
+    case 'CBR'
+        STAs_arrivals_matrix = generate_CBRtraffic(STA_number, traffic_load, L);
     otherwise
         error('Traffic model is not properly specified');
 end
@@ -38,25 +29,13 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%% Saving traffic dataset
-
-% %%% Saving STAs_arrivals_matrix to generate a dataset
-% if ~exist(TrafficfilePath, 'dir')
-%     mkdir(TrafficfilePath);
-% end
-% save(horzcat(TrafficfilePath, TrafficfileName),"STAs_arrivals_matrix");
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 end
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function STAs_arrivals_matrix = poisson_fixed_events (STA_number, validationFlag, event_number, trafficGeneration_rate)
+function STAs_arrivals_matrix = poisson_fixed_events (STA_number, event_number, trafficGeneration_rate)
     STAs_arrivals_matrix = cell(STA_number,1);
 
     for j = 1:STA_number
@@ -69,28 +48,8 @@ function STAs_arrivals_matrix = poisson_fixed_events (STA_number, validationFlag
         % Creating the line of time with the exponential times generated
         t(1:event_number+1) = cumsum ( w(1:event_number+1) );
 
-   
-        switch validationFlag
-            case 'yes'  % Validation against full buffer needs a packet at timestamp = 0;
-                STAs_arrivals_matrix{j} = t(1:end-1);
-            case 'no'
-                STAs_arrivals_matrix{j} = t(2:end);
-        end
-        
-        % %%% Verifying that w follows an exponential distribution
-        % %%% 1. Plot histogram with exponential PDF
-        % figure;
-        % histogram(w, 'Normalization', 'pdf');
-        % hold on;
-        % x = linspace(0, max(w), 100);
-        % lambda = trafficGeneration_rate;           % : Expected rate (1/mean inter-arrival time)
-        % y = lambda * exp(-lambda * x);
-        % plot(x, y, 'r', 'LineWidth', 2);
-        % title('Histogram of Inter-Arrival Times with Exponential PDF');
-        % xlabel('Inter-Arrival Time');
-        % ylabel('Probability Density');
-        % legend('Data', 'Theoretical Exponential PDF');
-        % hold off;
+        STAs_arrivals_matrix{j} = t(2:end);
+
     end
     
     return
@@ -99,7 +58,7 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function STAs_arrivals_matrix = generate_burstTraffic(STA_number, event_number, trafficGeneration_rate)
-    
+
     STAs_arrivals_matrix = cell(STA_number,1);
 
     %%% Average on and off time
@@ -145,14 +104,11 @@ function STAs_arrivals_matrix = generate_burstTraffic(STA_number, event_number, 
         arrival_times(arrival_times==0) = [];
         STAs_arrivals_matrix{j} = arrival_times;
     end
-    % Calculate the actual generation rate including both ON and OFF periods
-    % total_time = arrival_times(end); % Time at which the last packet arrives
-    % effective_generation_rate = event_number / total_time; % Effective generation rate
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function STAs_arrivals_matrix = generate_VRtraffic(STA_number, traffic_load, L)
+function STAs_arrivals_matrix = generate_CBRtraffic(STA_number, traffic_load, L)
     STAs_arrivals_matrix = cell(STA_number,1);
     
     % Split the string using the '-' delimiter
@@ -192,37 +148,6 @@ function STAs_arrivals_matrix = generate_VRtraffic(STA_number, traffic_load, L)
         % Store inter-arrival times in the cell array
         STAs_arrivals_matrix{sta} = interarrival_times;
     end
-    % 
-    % colors = {
-    %     [1, 0, 0];    % Red
-    %     [0, 1, 0];    % Green
-    %     [0, 0, 1];    % Blue
-    %     [1, 1, 0];    % Yellow
-    %     [0, 1, 1];    % Cyan
-    %     [1, 0, 1];    % Magenta
-    %     [0.5, 0.5, 0.5]; % Gray
-    %     [1, 0.5, 0]   % Orange
-    %     };
-
-    % %%% To verify the bitrate and the fps
-    % vectorA = [];
-    % vectorB = [];
-    % figure('pos', [2000,2000,850,650])
-    % for j=1:STA_number
-    %     stem(STAs_arrivals_matrix{j}(1000:2000), ones(length(1000:2000),1), 'color', colors{j})
-    %     hold on
-    %     A = 12E3*length(STAs_arrivals_matrix{j})/(1E6*STAs_arrivals_matrix{j}(end));
-    %     B = 1/(STAs_arrivals_matrix{j}(frames_per_burst+1)-STAs_arrivals_matrix{j}(1));
-    %     vectorA = [vectorA,A];
-    %     vectorB = [vectorB,B];
-    % end
-    % disp(vectorA);
-    % disp(vectorB);
-
-
-
-
-
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

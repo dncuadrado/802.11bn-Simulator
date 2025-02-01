@@ -1,5 +1,6 @@
-function [preTX_overheadsDCF,preTX_overheadsCSR, DCFoverheads, CSRoverheads] = OverheadsCalc(EDCAaccessCategory)
-    %%%% Computes the needed overheads
+function [preTX_overheadsEDCA,preTX_overheadsCSR, EDCAoverheads, CSRoverheads] = OverheadsCalc(EDCAaccessCategory)
+    
+    %%%% Computes the overheads
     time_preamble_data = 100e-6;
 
     
@@ -7,7 +8,7 @@ function [preTX_overheadsDCF,preTX_overheadsCSR, DCFoverheads, CSRoverheads] = O
     TCTS = 48E-6;
     TSIFS = 16e-6;                      % Shortest Interframe spacing (SIFS time)
     
-    % DIFS = 34e-6;                       % DCF Interframe spacing (DIFS time)
+    % DIFS = 34e-6;                       % EDCA Interframe spacing (DIFS time)
     Te = 9e-6;                          % Duration of a single backoff slot
     TBACK = 100E-6;
     
@@ -24,9 +25,9 @@ function [preTX_overheadsDCF,preTX_overheadsCSR, DCFoverheads, CSRoverheads] = O
     
     AIFS = AIFSN*9e-6 + 16e-6;  % AIFSN*slotTime + SIFS
 
-    %%% DCF Overheads
-    preTX_overheadsDCF = TRTS + TSIFS + TCTS + TSIFS + time_preamble_data;
-    DCFoverheads = TRTS + TSIFS + TCTS + TSIFS + time_preamble_data + TSIFS + TBACK + AIFS + Te;
+    %%% EDCA Overheads
+    preTX_overheadsEDCA = TRTS + TSIFS + TCTS + TSIFS + time_preamble_data;
+    EDCAoverheads = TRTS + TSIFS + TCTS + TSIFS + time_preamble_data + TSIFS + TBACK + AIFS + Te;
     
 
     %%% CSR overheads

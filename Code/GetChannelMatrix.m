@@ -1,4 +1,6 @@
 function [channelMatrix, RSSI_dB_vector_to_export] = GetChannelMatrix(MaxTxPower, Cca, AP_matrix, STA_matrix, scenario_type, walls)    
+%%% Returns the channel coefficients of all links between APs and STAs, as well as the RSSI of them considering the
+%%% channel coefficient and the TX power. A std deviation is added to the pathloss computation
 
 % Matrix stores all the AP-STA channel coefficients 
 channelMatrix = zeros(size(STA_matrix,1),size(AP_matrix,1));

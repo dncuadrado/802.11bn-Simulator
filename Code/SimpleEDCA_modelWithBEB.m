@@ -1,4 +1,4 @@
-function [tau_, EB_, p_] = SimpleDCF_modelWithBEB(N, EDCAaccessCategory)
+function [tau_, EB_, p_] = SimpleEDCA_modelWithBEB(N, EDCAaccessCategory)
     
     MaxIter=100;
     
@@ -42,33 +42,9 @@ function [tau_, EB_, p_] = SimpleDCF_modelWithBEB(N, EDCAaccessCategory)
         end
     
     end
-    
-    % disp('tau | EB | p');
-    % disp([tau(MaxIter) EB(MaxIter) p(MaxIter)]);
-    
-    tau_= tau(MaxIter);
-    % tau_ = 2/(CWmin+2);
 
+    tau_= tau(MaxIter);
     EB_ = EB(MaxIter);
     p_ = p(MaxIter);
     
-    
-    % figure
-    % plot(tau);
-    
-    % % Channel Probs
-    % pe = (1-tau_)^N;
-    % ps = N*tau_*(1-tau_)^(N-1);
-    % pc = 1-pe-ps;
-    % 
-    % % Throughput
-    % L= 10000;
-    % Ts = 1E-3;
-    % Te = 9E-6;
-    % Tc = 100E-6;
-    % 
-    % S= ps*L/(pe*Te+ps*Ts+pc*Tc);
-    
-    % disp('Throughput');
-    % disp(S);
 end

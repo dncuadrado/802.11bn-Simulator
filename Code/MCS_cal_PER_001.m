@@ -1,10 +1,11 @@
 function [MCS, N_bps, Rc] = MCS_cal_PER_001(SINR_db)
 % Calculates the 802.11be MCS and related parameters (N_bps, Rc) for a given value
-% of SINR and considering a PER lower than 1E-2
+% of SINR and considering a PER lower than 1E-2.
+% Note that the SINR ranges that guarantees these MCS values, are valid only for:
+% - Frame length = 1500 bytes (or lower)
+% - 80 MHz bandwidth or lower
+% - Antenna settings: 2 spatial streams (or lower)
 
-
-%%% interp1(packetErrorRate_MCS,SINRvector,1E-2)   % To interpolate the computed values to estimate the SINR value
-                                                   % corresponding to PER = 1E-2 for each MCS
 
 if(SINR_db < 14.2862)   % Not a valid MCS
     MCS = NaN;

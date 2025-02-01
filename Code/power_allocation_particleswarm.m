@@ -1,6 +1,5 @@
 function P_opt = power_allocation_particleswarm(N, noise_power, H, P_max, Nsc, Nss)
 
-
 % % Objective function for proportional fairness (maximize product of rates)
 objective = @(P) -computeRates(P', H, noise_power, N, Nsc, Nss); % Maximize product of rates
 
@@ -20,9 +19,6 @@ options = optimoptions('particleswarm', ...
 [P_opt, ~] = particleswarm(objective, N, lb, ub, options);
 P_opt = P_opt';
 
-
-% Calculate final product of rates (proportional fairness objective)
-% max_rate = exp(-fval);
 end
 
 % Nested function to calculate rates
@@ -30,10 +26,6 @@ function product_rate = computeRates(P, H, noise_power, N, Nsc, Nss)
     T_DFT = 12.8e-6;            % OFDM symbol duration
     T_GI = 0.8e-6;
     rates = zeros(N, 1); % Initialize rates
-
-    % Compute rates for each link
-    % sinr = (P .* diag(H)) ./ (noise_power + sum(H .* P', 2) - diag(H) .* P);
-    % rates = log2(1 + sinr);
 
     sinr_dB = 10*log10((P .* diag(H)) ./ (noise_power + sum(H .* P', 2) - diag(H) .* P));
     for i = 1:N
@@ -47,5 +39,4 @@ function product_rate = computeRates(P, H, noise_power, N, Nsc, Nss)
 
     % Product of rates
     product_rate = prod(rates); % Return the product of rates
-    % product_rate = sum(rates); % Return the product of rates
 end

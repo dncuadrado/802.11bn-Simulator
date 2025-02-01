@@ -1,16 +1,14 @@
-function [per_STA_DCF_throughput_bianchi, prob_col_bianchi] = Throughput_DCF_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
-                                            Pn_dBm, Nsc, Nss, TXOP_duration, DCFoverheads, EDCAaccessCategory)
+function [per_STA_EDCA_throughput_bianchi, prob_col_bianchi] = Throughput_EDCA_bianchi(AP_number, STA_number, association, RSSI_dB_vector_to_export, ...
+                                            Pn_dBm, Nsc, Nss, TXOP_duration, EDCAoverheads, EDCAaccessCategory)
             
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     TSIFS = 16e-6;      % Shortest Interframe spacing (SIFS time)
-    % TDIFS = 34E-6;      % DCF Interframe spacing (DIFS time)
     TRTS = 56E-6;       % RTS duration
     TCTS = 48E-6;       % CTS duration
 
     
     L = 12e3;           % Single frame length
-    % CWmin=15;           % minimum contention window
     Te = 9e-6;          % Duration of a single backoff slot
 
     switch EDCAaccessCategory
@@ -23,17 +21,15 @@ function [per_STA_DCF_throughput_bianchi, prob_col_bianchi] = Throughput_DCF_bia
     AIFS = AIFSN*Te + TSIFS;  % AIFSN*slotTime + SIFS
     Tcoll = TRTS + TSIFS + TCTS + AIFS + Te;       % Collision duration
     
-    % m = 6;                  %%% number of backoff stages
-    
     %%% Computing bianchi's parameters
-    [tau, ~, prob_col_bianchi] = SimpleDCF_modelWithBEB(AP_number, EDCAaccessCategory);
+    [tau, ~, prob_col_bianchi] = SimpleEDCA_modelWithBEB(AP_number, EDCAaccessCategory);
     pe = (1-tau)^AP_number;
     ps = AP_number*tau*(1-tau)^(AP_number-1);
     pc = 1-pe-ps;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     rx_packets = zeros(STA_number,1);
-    per_STA_DCF_throughput_bianchi = zeros(STA_number,1);
+    per_STA_EDCA_throughput_bianchi = zeros(STA_number,1);
     
     %%% Initializing tx parameters
     MCS = zeros(STA_number,1);
@@ -55,14 +51,14 @@ function [per_STA_DCF_throughput_bianchi, prob_col_bianchi] = Throughput_DCF_bia
             error('Not valid MCS');
         end
     
-        rx_packets(kk) = tx_packets(Nsc, N_bps(kk), Rc(kk), Nss, TXOP_duration-DCFoverheads);
+        rx_packets(kk) = tx_packets(Nsc, N_bps(kk), Rc(kk), Nss, TXOP_duration-EDCAoverheads);
         if rx_packets(kk) > 1024
-            error('Imposible to tx more than 1024 MSDUs')
+            error('Imposible to tx more than 1024 MPDUs')
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
         %%% Throughput calculation following bianchi's model
-        per_STA_DCF_throughput_bianchi(kk,1) = p_STA*ps*rx_packets(kk)*L/(1e6*(pe*Te + ps*TXOP_duration + pc*Tcoll));
+        per_STA_EDCA_throughput_bianchi(kk,1) = p_STA*ps*rx_packets(kk)*L/(1e6*(pe*Te + ps*TXOP_duration + pc*Tcoll));
     end
             
 end

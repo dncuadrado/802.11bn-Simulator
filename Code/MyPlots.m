@@ -2,16 +2,14 @@ classdef MyPlots
     properties (Access = 'private')
         mechanisms % Cell array to store mechanism names
         numberOfmechanisms
-        % colors = {'#B38181', '#819EB3', '#5E4646', '#B3B281'}; % Predefined colors
         colors = {'#36A2AD', '#EF8742', '#875EB5', '#75AF50', '#F5C542'};
         
         markers = {'o', '^', 'square', 'pentagram', 'x'};
 
-        DCF
+        EDCA
         MNP
         OP
         TAT
-        Hybrid
 
         %%% System-related
         n_APs
@@ -29,9 +27,9 @@ classdef MyPlots
                 switch class(varargin{i})
                     case 'MAPCsim'
                         % Check which specific mechanism is being passed
-                        if contains(varargin{i}.simulation_system, 'DCF')
-                            self.mechanisms{end + 1} = 'DCF';
-                            self.DCF = varargin{i};
+                        if contains(varargin{i}.simulation_system, 'EDCA')
+                            self.mechanisms{end + 1} = 'EDCA';
+                            self.EDCA = varargin{i};
                         elseif contains(varargin{i}.scheduler, 'MNP')
                             self.mechanisms{end + 1} = 'MNP';
                             self.MNP = varargin{i};
@@ -41,9 +39,6 @@ classdef MyPlots
                         elseif contains(varargin{i}.scheduler, 'TAT')
                             self.mechanisms{end + 1} = 'TAT';
                             self.TAT = varargin{i};
-                        elseif contains(varargin{i}.scheduler, 'Hybrid')
-                            self.mechanisms{end + 1} = 'Hybrid';
-                            self.Hybrid = varargin{i};
                         end
                 end
             end
@@ -83,7 +78,6 @@ classdef MyPlots
             xlim([0.5, actors+0.5]);  % Adding margin before the first STA and after the last one
             xlabel('STA', 'interpreter', 'latex', 'FontSize', 14);
             ylabel(ylabeltag, 'interpreter', 'latex', 'FontSize', 16);
-            ylim([0 ])
             ax = gca;
             ax.XAxis.LineWidth = 1.5;
             ax.YAxis.LineWidth = 1.5;
@@ -98,104 +92,6 @@ classdef MyPlots
     end
 
     methods ( Access = 'public' )
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function PlotValidation(self)
-
-            %%% Validating: self.validationFlag = 'yes'
-            if ~strcmp(self.validationFlag,'yes')
-                error("you should set validationFlag = 'yes' in the main menu")
-            end
-
-            % Collision probability and throughput following bianchi's model and simulations
-            % [~, ~, prob_col_bianchi] = SimpleDCF_modelWithBEB(self.n_APs);
-            x = 1:self.n_STAs;  % xaxis values
-            name = {'Simulated','Bianchi'};     % xaxis names
-
-
-
-            switch self.simulation_system
-                case 'DCF'
-                    %%% For DCF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-                    [per_STA_DCF_throughput_bianchi, ~] = Throughput_DCF_bianchi(self.n_APs, self.n_STAs, self.association, self.RSSI_dB_vector_to_export, ...
-                        self.Pn_dBm, self.Nsc, self.Nss, self.TXOP_duration, self.DCFoverheads);
-
-                    thr_data_combined = zeros(self.n_STAs,2);       % combining simulated data with bianchis' to plot them
-                    for j=1:self.n_STAs
-                        thr_data_combined(j,:) = [self.throughput_sim(j), per_STA_DCF_throughput_bianchi(j)];
-                    end
-
-                    fprintf('Aggregate_Throughput_DCF_Simulated = %.4d \n',sum(self.throughput_sim));
-                    fprintf('Aggregate_Throughput_DCF_Bianchi = %.4d \n',sum(per_STA_DCF_throughput_bianchi));
-
-
-                    % %%% Plot AP collision probability
-                    % xlim1 = [0 self.n_APs+1];
-                    % figure
-                    % bar(self.APcollision_prob);
-                    % hold on
-                    % plot(xlim1,[prob_col_bianchi prob_col_bianchi]);
-                    % title('DCF Collision probability', 'interpreter','latex', 'FontSize', 14)
-                    % legend(name)
-                    % xlabel('AP', 'interpreter','latex', 'FontSize', 14)
-                    % ylabel('Probability', 'interpreter','latex', 'FontSize', 14)
-                    %
-                    % set(gca, 'TickLabelInterpreter','latex');
-                    % grid on
-
-                    %%% Plot DCF throughput
-                    figure
-                    bar(x,thr_data_combined);
-                    title('DCF-Throughput per STA', 'interpreter','latex', 'FontSize', 14);
-                    legend(name);
-                    xlabel('STA', 'interpreter','latex', 'FontSize', 14);
-                    ylabel('Throughput [Mbps]', 'interpreter','latex', 'FontSize', 14);
-                    grid on
-                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                case 'CSR'
-                    %%% For C-SR %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                    %%% C-SR throughput analytically computed using Bianchi's model
-
-                    [DL_throughput_CSR_bianchi, ~] = Throughput_CSR_bianchi(self.n_APs, self.n_STAs, self.association, self.CGs_STAs, ...
-                        self.RSSI_dB_vector_to_export, self.Pn_dBm, self.Nsc, self.Nss, self.TXOP_duration, self.DCFoverheads, self.CSRoverheads);
-                    thr_data_combined = zeros(self.n_STAs,2);       % combining simulated data with bianchis' to plot them
-                    for j=1:self.n_STAs
-                        thr_data_combined(j,:) = [self.throughput_sim(j), DL_throughput_CSR_bianchi(j)];
-                    end
-
-                    fprintf('Aggregate_Throughput_CSR_Simulated = %.4d \n',sum(self.throughput_sim));
-                    fprintf('Aggregate_Throughput_CSR_Bianchi = %.4d \n',sum(DL_throughput_CSR_bianchi));
-
-                    % %%% Plot AP collision probability
-                    % xlim1 = [-5 self.n_APs+5];
-                    % figure
-                    % bar(self.APcollision_prob);
-                    % hold on
-                    % plot(xlim1,[prob_col_bianchi prob_col_bianchi]);
-                    % title('C-SR Collision probability', 'interpreter','latex', 'FontSize', 14)
-                    % legend(name)
-                    % xlabel('AP', 'interpreter','latex', 'FontSize', 14)
-                    % ylabel('Probability', 'interpreter','latex', 'FontSize', 14)
-                    % xlim([0 (self.n_APs + 1)]);
-                    % % ylim([0 1]);
-                    % % yticks([0:0.1:1]);
-                    % set(gca, 'TickLabelInterpreter','latex');
-                    % grid on
-
-
-                    %%% Plot C-SR throughput
-                    figure
-                    bar(x,thr_data_combined);
-                    title('CSR-Throughput per STA', 'interpreter','latex', 'FontSize', 14);
-                    legend(name);
-                    xlabel('STA', 'interpreter','latex', 'FontSize', 14);
-                    ylabel('Throughput [Mbps]', 'interpreter','latex', 'FontSize', 14);
-                    grid on
-            end
-        end
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function PlotCDFdelayTotal(self)
