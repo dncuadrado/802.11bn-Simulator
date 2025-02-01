@@ -15,8 +15,6 @@ The IEEE 802.11bn Simulator is designed to evaluate the downlink performance of 
   - [Input Parameters](#input-parameters)
   - [Simulation Execution Flow](#simulation-execution-flow)
 - [Running the Simulator](#running-the-simulator)
-- [Customization](#customization)
-- [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -130,7 +128,7 @@ Each simulation iteration involves the following steps:
 
 4. **Running Simulations:**
    - **EDCA Simulation:** An instance of `MAPCsim` is configured and run with the simulation system set to `'EDCA'`.
-   - **CSR Simulations:** Additional instances of `MAPCsim` are configured for CSR with different schedulers:
+   - **MAPC Simulations:** Additional instances of `MAPCsim` are configured for CSR with different schedulers:
      - **MNP:** Maximum Number of Packets scheduler.
      - **OP:** Oldest Packet scheduler.
      - **TAT:** Traffic-Alignment Tracker scheduler (with configurable `alpha_` and `beta_` parameters).
@@ -154,12 +152,6 @@ Each simulation iteration involves the following steps:
 
 2. **Run the Main Simulation Script:**
    Execute the main simulation file (`Simulator.m`):
-
-    ```matlab
-    Simulator
-    ```
-
-   *(Make sure the script name matches the file in your repository.)*
 
 3. **Observe the Output:**
    The simulator will run for the defined number of iterations, and the specified plots will be generated for each iteration. You can modify the plotting commands in the script (by commenting or uncommenting) to display your desired outputs.
