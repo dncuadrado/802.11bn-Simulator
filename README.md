@@ -29,13 +29,13 @@ The simulator focuses on evaluating the downlink performance in a network with m
 
 - **Traffic Modeling:** Choose among Poisson, Bursty, and Constant Bit Rate (CBR) traffic.
 - **Scenario Configuration:** Define AP/STA numbers, grid dimensions, and even incorporate walls in the scenario.
-- **System Parameters:** Configure TXOP durations, noise figures, bandwidth, and more.
-- **MAC Protocols:** Compare the performance of traditional EDCA with different CSR (Centralized Scheduling Resource allocation) algorithms including:
-  - CSR with Minimum Number of Packets (MNP)
-  - CSR with Opportunistic Scheduling (OP)
-  - CSR with Time Aware Throughput (TAT)
+- **System Parameters:** Configure TXOP durations, noise, bandwidth, and more.
+- **MAC Protocols:** Compare the performance of traditional EDCA against MAPC, with different scheduling algorithms including:
+  - Maximum Number of Packets (MNP)
+  - Oldest Packet (OP)
+  - Traffic-Alignment Tracker (TAT)
 
-Performance metrics are evaluated over multiple iterations (each representing a unique channel realization), and various plots are generated to illustrate performance aspects such as throughput, delay distributions, and collision probabilities.
+Performance metrics are evaluated over multiple iterations (each representing a unique channel realization), and various plots are generated to illustrate performance aspects such as delay distributions, and collision probabilities, etc
 
 ---
 
@@ -44,7 +44,7 @@ Performance metrics are evaluated over multiple iterations (each representing a 
 - **Flexible Traffic Generation:** Supports different traffic types (`'Poisson'`, `'Bursty'`, `'CBR'`) and load configurations.
 - **Detailed Scenario Modeling:** Place APs and STAs in grid-based scenarios with custom wall definitions.
 - **Overhead & Power Calculations:** Uses dedicated functions (`TXpowerCalc` and `OverheadsCalc`) to compute TX power, subcarrier numbers, and overheads.
-- **Multiple Simulation Systems:** Simulate EDCA and CSR systems (with different schedulers) in parallel.
+- **Multiple Simulation Systems:** Simulate EDCA and MAPC systems (with different schedulers) in parallel.
 - **Comprehensive Plotting:** Generate percentile, CDF, and other performance plots using the `MyPlots` class.
 
 ---
@@ -58,14 +58,13 @@ Performance metrics are evaluated over multiple iterations (each representing a 
 
 - **MATLAB:** R2018b or later is recommended.
 - **MATLAB Toolboxes:** Ensure that any required toolboxes (e.g., Signal Processing Toolbox) are installed.
-- **Other Dependencies:** All functions (such as `TXpowerCalc`, `OverheadsCalc`, etc.) should be present in the repository.
 
 ### Installation
 
 1. **Clone the Repository:**
 
     ```bash
-    git clone https://github.com/yourusername/IEEE80211bnSimulator.git
+    git clone https://github.com/dncuadrado/802.11bn-Simulator.git
     ```
 
 2. **Set Up the MATLAB Path:**
@@ -82,12 +81,12 @@ Performance metrics are evaluated over multiple iterations (each representing a 
 
 ### Input Parameters
 
-The simulator’s behavior is controlled via a set of input parameters defined at the beginning of the main simulation script (e.g., `main_simulator.m`). Below is an explanation of the key parameters:
+The simulator’s behavior is controlled via a set of input parameters defined at the beginning of the main simulation script `Simulator.m`. Below is an explanation of the key parameters:
 
 - **Traffic Parameters:**
   - `traffic_type`: Defines the type of traffic. Options include `'Poisson'`, `'Bursty'`, or `'CBR'`.
-  - `traffic_load`: Specifies the load level for Best Effort (BE) traffic. For Poisson and Bursty, use `'low'`, `'medium'`, or `'high'`. For CBR, specify in the format `'x-y'` where `x` is the bitrate and `y` is the frames per second.
-  - `EDCAaccessCategory`: Sets the EDCA access category (e.g., `'BE'`).
+  - `traffic_load`: Specifies the load level. For Poisson and Bursty, use `'low'`, `'medium'`, or `'high'`. For CBR, specify in the format `'x-y'` where `x` is the bitrate and `y` is the frames per second.
+  - `EDCAaccessCategory`: Sets the EDCA access category ( `'BE'`, `'VI'`).
 
 - **Scenario-Related Parameters:**
   - `AP_number`: Number of Access Points.
@@ -123,7 +122,7 @@ Each simulation iteration involves the following steps:
 
 2. **Throughput and Overhead Calculations:**
    - The throughput for each STA under EDCA is calculated via `Throughput_EDCA_bianchi`.
-   - Channel Groups (CGs) for STAs and TX power allocation are computed using `CGcreation`.
+   - Coordinated Groups (CGs) for STAs and TX power allocation are computed using `CGcreation`.
 
 3. **Traffic Generation:**
    - Traffic arrivals are generated for each STA based on the specified traffic type and load.
@@ -132,15 +131,15 @@ Each simulation iteration involves the following steps:
 4. **Running Simulations:**
    - **EDCA Simulation:** An instance of `MAPCsim` is configured and run with the simulation system set to `'EDCA'`.
    - **CSR Simulations:** Additional instances of `MAPCsim` are configured for CSR with different schedulers:
-     - **MNP:** CSR with the Minimum Number of Packets scheduler.
-     - **OP:** CSR with the Opportunistic scheduler.
-     - **TAT:** CSR with the Time Aware Throughput scheduler (with configurable `alpha_` and `beta_` parameters).
+     - **MNP:** Maximum Number of Packets scheduler.
+     - **OP:** Oldest Packet scheduler.
+     - **TAT:** Traffic-Alignment Tracker scheduler (with configurable `alpha_` and `beta_` parameters).
 
 5. **Plot Generation:**
    - After simulation, various plots are generated to visualize performance metrics such as:
      - Percentile values (e.g., 50th and 99th percentiles)
      - Delay distributions (CDF for total delay and per STA)
-     - TXOP window numbers
+     - Number of TXOP won per AP
      - AP collision probabilities
      - STA selection counters
 
@@ -154,10 +153,10 @@ Each simulation iteration involves the following steps:
    Navigate to the cloned repository directory.
 
 2. **Run the Main Simulation Script:**
-   Execute the main simulation file (e.g., `main_simulator.m`):
+   Execute the main simulation file (`Simulator.m`):
 
     ```matlab
-    main_simulator
+    Simulator
     ```
 
    *(Make sure the script name matches the file in your repository.)*
@@ -167,47 +166,9 @@ Each simulation iteration involves the following steps:
 
 ---
 
-## Customization
-
-- **Modifying Simulation Parameters:**
-  Edit the top section of the main simulation script to adjust traffic type, load, number of APs/STAs, grid size, TXOP duration, bandwidth, etc.
-
-- **Traffic Generation:**
-  Change parameters in `TrafficGenerator` to simulate different traffic patterns or loads.
-
-- **Selecting Different Scheduling Algorithms:**
-  Set the `simulation_system` and `scheduler` fields of the `MAPCsim` object to run different MAC protocols:
-  - For EDCA: `simEDCA.simulation_system = 'EDCA';`
-  - For CSR:
-    - Minimum Number of Packets (MNP): `simMNP.scheduler = 'MNP';`
-    - Opportunistic (OP): `simOP.scheduler = 'OP';`
-    - Time Aware Throughput (TAT): `simTAT.scheduler = 'TAT';` (with parameters `alpha_` and `beta_`)
-
-- **Randomness Control:**
-  The simulator uses `rng(1)` for reproducibility. To generate different deployments on each run, comment out or modify these `rng(1)` calls.
-
----
-
-## Troubleshooting
-
-- **Simulation Duration Error:**
-  If you see an error stating that `timestamp_to_stop` is less than the arrival time of the last packet, consider increasing `timestamp_to_stop` or adjusting traffic generation settings.
-
-- **Missing Functions:**
-  Ensure that all required MATLAB function files (e.g., `TXpowerCalc.m`, `OverheadsCalc.m`, etc.) are in your MATLAB path.
-
-- **MATLAB Path Issues:**
-  If MATLAB cannot find certain functions, double-check that you have added the repository (and all its subdirectories) to the MATLAB path using:
-
-    ```matlab
-    addpath(genpath('path_to_repository'));
-    ```
-
----
-
 ## Contributing
 
-Contributions to enhance the simulator, fix bugs, or add new features are very welcome! Please fork the repository and create a pull request with your changes. For major modifications, open an issue first to discuss what you would like to change.
+Contributions to enhance the simulator, fix bugs, or add new features are very welcome! 
 
 ---
 
@@ -221,8 +182,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For questions or issues, please open an issue on GitHub or contact:
 
-**Your Name**  
-Email: [your.email@example.com](mailto:your.email@example.com)
+**David Nunez**  
+Email: [david.nunez@upf.edu](mailto:david.nunez@upf.edu)
 
 ---
 
